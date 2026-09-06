@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/hum_character.tscn" id="1"]
+
+[node name="HumAppearance07" instance=ExtResource("1")]
+appearance_id = 6
+preset_name = "Hum Appearance 07"
+appearance_base = 3600
+weapon_enabled = false

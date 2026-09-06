@@ -1,0 +1,33 @@
+# Godot生成的缓存
+.godot/
+
+# 大型原始素材
+Hum/
+Hair/
+Head/
+Weapon/
+WeaponEffect/
+
+# Godot程序
+Godot.exe
+Godot_*.exe
+Godot*.exe
+
+# 临时日志和验证文件
+*.log
+_godot_pid.txt
+_check*
+_v.log
+_ve.log
+
+# OpenCode临时验证场景
+scenes/_verify_*.tscn
+scripts/_verify_*.gd
+
+# 本地损坏版本备份
+_broken_layer_backup/
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
