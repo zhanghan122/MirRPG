@@ -149,7 +149,7 @@ WeaponIdleTest (Node2D, weapon_idle_test.gd)
   - 方向键 ←/→/↑/↓ = weapon_test_adjustment X/Y ±1px；`0` = 归零。
   - HUD 每帧显示：Raw Weapon Placement / Test Adjustment / Final Weapon Position（= Raw + Adjustment）。
   - **注意**：project.godot 中方向键已映射为角色移动，按微调键时角色会同时朝该方向走一小段，建议短按；也可用 WASD 移动、方向键微调。
-- 非 idle/walk 动作（run/pose/attack/death 等）继续显示当前方向的武器 idle 帧（既有行为，不在本次范围）。
+- 非 idle/walk 动作：`run` 使用第 9 节已确认的映射；pose/attack/death 等继续显示当前方向的武器 idle 帧。
 
 ### 7.7 按键汇总
 
@@ -183,3 +183,60 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
 
 - W / NW / SW：人物遮挡武器；
 - E / N / S：武器显示在人物前面。
+
+## 9. 持武器 Run 映射（已确认，2026-09-07）
+
+### 9.1 范围与冻结声明
+
+- 已实机验证并冻结，本轮未改动：Weapon Idle、Weapon Walk、Weapon Placement、
+  手部对齐、W/NW/SW 前后遮挡规则。
+- 稳定人物（`hum_character.gd/.tscn`）、正式测试场景完全未修改；身体 Run 速度、
+  动画、方向判断均不变。
+- 本轮只固定持武器 Run 映射（用户实机确认 Mode A 正确），移除 F6 A/B 切换逻辑，
+  不添加攻击/施法/挖掘/受击/死亡帧，不扫描 Weapon 目录，
+  不猜测 31392 之后的动作，不合并到正式人物模板。
+
+### 9.2 持武器 Run 映射表（31328–31389，已确认）
+
+按与 idle/walk 相同的布局：每方向占一个 8 索引槽位
+（N, NE, E, SE, S, SW, W, NW，起始偏移 +0/+8/+16/+24/+32/+40/+48/+56），前 6 帧有效。
+
+| 方向 | Run 索引（每方向 6 帧） |
+|------|------------------------|
+| n    | 31328, 31329, 31330, 31331, 31332, 31333 |
+| ne   | 31336, 31337, 31338, 31339, 31340, 31341 |
+| e    | 31344, 31345, 31346, 31347, 31348, 31349 |
+| se   | 31352, 31353, 31354, 31355, 31356, 31357 |
+| s    | 31360, 31361, 31362, 31363, 31364, 31365 |
+| sw   | 31368, 31369, 31370, 31371, 31372, 31373 |
+| w    | 31376, 31377, 31378, 31379, 31380, 31381 |
+| nw   | 31384, 31385, 31386, 31387, 31388, 31389 |
+
+用户实机确认（2026-09-07）：Mode A 正确，31328 是 N 方向持武器 Run 的第一帧。
+上表为最终映射，不再存在模式切换。
+
+### 9.3 帧同步规则
+
+- 身体 run：每方向 6 帧 @ 10fps，循环（hum_frames.gd / HUM_FRAME_RULES.md）。
+- 人物播放 `run_<dir>` 时，武器层播放上表对应方向的帧；
+  同索引同步：身体 Run 帧 N → 武器 Run 帧 N（N = 0..5），与 idle/walk 一致。
+- 不修改身体 Run 速度、Run 动画或方向判断。
+
+### 9.4 Placement 与图层
+
+- 每张武器 PNG 使用同编号 Placement：`res://Weapon/Placements/%05d.txt`（31328–31389）。
+- Weapon Placement 仍然只应用一次：`WeaponAnchor.position = weapon_placement`；
+  `WeaponSprite.centered=false`、position/offset=ZERO、flip_h=false；未添加任何新补偿。
+- 图层完全复用第 8 节方向规则（w/nw/sw 武器在后，其余在前），未修改 `_update_weapon_layer()`。
+
+### 9.5 HUD 显示
+
+- F6 A/B 切换已移除：Run 映射恒用 9.2 已确认表，无需按键。
+- HUD 字段：`body_run_frame`（当前身体 Run 帧号）、
+  `weapon_run_frame`（当前武器 Run 帧索引）、`weapon_abs_idx`（当前武器绝对索引）；
+  原有方向、Placement、PNG 存在性字段继续有效。
+
+### 9.6 验证状态
+
+- Godot headless 检查：通过（场景加载、脚本解析无错误）。
+- **用户实机确认（2026-09-07）：31328–31389 为持武器 Run 映射，Mode A 正确。** 本节规则已冻结。

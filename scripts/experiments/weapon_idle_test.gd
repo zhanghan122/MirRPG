@@ -1,7 +1,8 @@
 extends Node2D
 
 # ============================================================
-# Weapon experiment: Idle + Walk only. No attack/cast/death.
+# Weapon experiment: Idle + Walk (verified, frozen) + Run (user-verified, frozen).
+# No attack/cast/death.
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -62,6 +63,19 @@ const WALK_CANDIDATE_B := {
 	"nw": [31306, 31307, 31308, 31309, 31310, 31311],
 }
 
+# Run (31328-31389): same 8-index slot layout as idle/walk, first 6 frames
+# valid per direction. User-verified live; this is the frozen weapon run rule.
+const RUN_FRAMES := {
+	"n": [31328, 31329, 31330, 31331, 31332, 31333],
+	"ne": [31336, 31337, 31338, 31339, 31340, 31341],
+	"e": [31344, 31345, 31346, 31347, 31348, 31349],
+	"se": [31352, 31353, 31354, 31355, 31356, 31357],
+	"s": [31360, 31361, 31362, 31363, 31364, 31365],
+	"sw": [31368, 31369, 31370, 31371, 31372, 31373],
+	"w": [31376, 31377, 31378, 31379, 31380, 31381],
+	"nw": [31384, 31385, 31386, 31387, 31388, 31389],
+}
+
 var weapon_enabled := true
 var idle_candidate_name := "A"
 var walk_candidate_name := "A"
@@ -80,6 +94,9 @@ var _hud: Label
 
 var _weapon_dir := ""
 var _current_abs_idx := -1
+# HUD-only mirrors of the current run frame indices (-1 when not running).
+var _hud_run_body_frame := -1
+var _hud_weapon_run_frame := -1
 var _last_diag_anim := ""
 var _last_diag_key := ""
 
@@ -117,14 +134,23 @@ func _process(_delta: float) -> void:
 	var frames: Array
 	if action == "walk":
 		frames = _walk_candidate().get(dir, [])
+	elif action == "run":
+		frames = RUN_FRAMES.get(dir, [])
 	else:
-		# idle and all other actions (run/pose/attack/death...): keep showing
+		# idle and all other actions (pose/attack/death...): keep showing
 		# the current direction's idle weapon frames (existing behavior).
 		frames = _idle_candidate().get(dir, [])
 
 	var frame_idx := 0
 	if not frames.is_empty():
+		# Same-index sync for all actions: body frame N -> weapon frame N.
 		frame_idx = body_frame % frames.size()
+	if action == "run":
+		_hud_run_body_frame = body_frame
+		_hud_weapon_run_frame = frame_idx if not frames.is_empty() else -1
+	else:
+		_hud_run_body_frame = -1
+		_hud_weapon_run_frame = -1
 	_apply_frame(frames, frame_idx)
 	_walk_e_diagnostic(anim, body_frame, info)
 	_update_hud(anim, dir, body_frame, info)
@@ -218,7 +244,7 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 
 
 func _preload_weapon_data() -> void:
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B]:
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -255,6 +281,8 @@ func _update_hud(anim: String, dir: String, body_frame: int, info: Dictionary) -
 		"current_direction=%s  body_z_index=%d  weapon_z_index=%d  weapon_layer=%s" % [
 			dir, _body_sprite.z_index, _sprite.z_index,
 			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
+		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d  weapon_abs_idx=%d" % [
+			_hud_run_body_frame, _hud_weapon_run_frame, _current_abs_idx],
 		"weapon idx=%d  png exists=%s" % [_current_abs_idx, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"],
 		"Raw Weapon Placement = (%.1f, %.1f)" % [plc.x, plc.y],
 		"Test Adjustment      = (%.1f, %.1f)" % [weapon_test_adjustment.x, weapon_test_adjustment.y],
