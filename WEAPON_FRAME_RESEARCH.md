@@ -240,3 +240,62 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
 
 - Godot headless 检查：通过（场景加载、脚本解析无错误）。
 - **用户实机确认（2026-09-07）：31328–31389 为持武器 Run 映射，Mode A 正确。** 本节规则已冻结。
+
+## 10. Pose 与单手攻击（2026-09-07）
+
+### 10.1 Pose 映射（31392–31399，用户实机确认正确）
+
+每方向 1 帧连续排列：N=31392, NE=31393, E=31394, SE=31395, S=31396, SW=31397, W=31398, NW=31399。
+按 P 时武器帧与人物 Pose 完全对应（用户实机确认）。本节已冻结。
+
+### 10.2 单手攻击候选（31400–31461）PNG/Placement 存在性检查
+
+只检查指定索引，未扫描整个 Weapon 目录：
+
+| 方向 | 有效帧索引 | PNG 存在 | Placement 存在 |
+|------|-----------|----------|----------------|
+| n    | 31400-31405 | 6/6 | 6/6 |
+| ne   | 31408-31413 | 6/6 | 6/6 |
+| e    | 31416-31421 | 6/6 | 6/6 |
+| se   | 31424-31429 | 6/6 | 6/6 |
+| s    | 31432-31437 | 6/6 | 6/6 |
+| sw   | 31440-31445 | 6/6 | 6/6 |
+| w    | 31448-31453 | 6/6 | 6/6 |
+| nw   | 31456-31461 | 6/6 | 6/6 |
+
+**结论：48/48 PNG 全部存在，48/48 Placement 全部存在。候选缺失不是武器消失的原因。**
+布局与 idle/walk/run 同构（8 索引槽位，每方向前 6 帧有效）。
+
+### 10.3 J 键武器消失的准确原因（已定位并修复）
+
+- 身体动画名由 `hum_character.gd` 构造为 `"%s_%s" % [action, direction]`，
+  即 J 时播放 `attack_onehand_<dir>`（8 个方向名均已确认）。
+- **Bug**：旧解析用 `anim.get_slice("_", 0)` / `get_slice("_", 1)`。
+  对 `"attack_onehand_s"`：`get_slice("_", 0)` = `"attack"`（不是 `attack_onehand`），
+  `get_slice("_", 1)` = `"onehand"`（不是方向）。
+- 后果链：parsed_action=`"attack"` → match 无匹配 → 落入默认分支；
+  dir=`"onehand"` → `_idle_candidate().get("onehand")` = 空数组 →
+  `_apply_frame()` 判定无帧 → `texture=null, visible=false` → **武器立即消失**。
+- **修复**：方向取最后一个下划线段（`rfind("_")`），action 取其前全部字符。
+  对 idle/walk/run/pose（名称只含一个下划线）解析结果与旧逻辑完全相同，
+  已冻结功能不受影响；仅多下划线的 `attack_onehand_*` 被正确识别。
+
+### 10.4 缺图处理核查（未修改）
+
+- `_apply_frame()`：当前帧 PNG 不存在 → `texture=null, visible=false`；
+  下一帧 PNG 存在 → 恢复对应纹理且 `visible = weapon_enabled`。
+- 不存在"一帧缺图永久关闭武器图层"的路径；`weapon_enabled` 只由 F5 切换。
+
+### 10.5 J-diag 诊断显示（只读）
+
+- HUD 在 weapon_action == "attack_onehand" 时持续追加一行：
+  `body_animation / parsed_action / parsed_direction / body_frame / weapon_action /
+  weapon_frame / weapon_absolute_index / weapon_png_path / weapon_png_exists /
+  weapon_visible / weapon_layer_enabled`。
+- 武器动作切换时在 Godot Output 打印一次 `[weapon] action ... -> ... dir=... body_frame=...`。
+
+### 10.6 验证状态
+
+- Godot headless 检查：通过（场景加载、脚本解析无错误）。
+- 待用户实机确认：按 J 时武器是否显示 31400–31461 对应帧，以及帧序是否与身体攻击动作对齐。
+- 未修改：Weapon Idle/Walk/Run/Pose、Placement、前后图层规则、Hum 人物、PNG/TXT。

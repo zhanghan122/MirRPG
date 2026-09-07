@@ -1,8 +1,9 @@
 extends Node2D
 
 # ============================================================
-# Weapon experiment: Idle + Walk (verified, frozen) + Run (user-verified, frozen).
-# No attack/cast/death.
+# Weapon experiment: Idle + Walk (verified, frozen) + Run (user-verified, frozen)
+# + Pose / AttackOnehand (candidate mappings, pending live verification).
+# No twohand/power/cast/dig/hit/death weapon frames yet.
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -76,6 +77,37 @@ const RUN_FRAMES := {
 	"nw": [31384, 31385, 31386, 31387, 31388, 31389],
 }
 
+# Pose (31392-31399): ONE frame per direction in consecutive order:
+# N=31392, NE=31393, E=31394, SE=31395, S=31396, SW=31397, W=31398, NW=31399.
+# This is NOT an 8-frame animation of a single direction. Candidate mapping;
+# pending live verification (P key).
+const POSE_FRAMES := {
+	"n": [31392],
+	"ne": [31393],
+	"e": [31394],
+	"se": [31395],
+	"s": [31396],
+	"sw": [31397],
+	"w": [31398],
+	"nw": [31399],
+}
+
+# Attack onehand (31400-31461): same 8-index slot layout as idle/walk/run,
+# first 6 frames valid per direction. Blank slots (31406-31407, 31414-31415,
+# 31422-31423, 31430-31431, 31438-31439, 31446-31447, 31454-31455, 31462-31463)
+# are NOT part of the animation and must never be loaded or displayed.
+# Candidate mapping; pending live verification (J key).
+const ATTACK_ONEHAND_FRAMES := {
+	"n": [31400, 31401, 31402, 31403, 31404, 31405],
+	"ne": [31408, 31409, 31410, 31411, 31412, 31413],
+	"e": [31416, 31417, 31418, 31419, 31420, 31421],
+	"se": [31424, 31425, 31426, 31427, 31428, 31429],
+	"s": [31432, 31433, 31434, 31435, 31436, 31437],
+	"sw": [31440, 31441, 31442, 31443, 31444, 31445],
+	"w": [31448, 31449, 31450, 31451, 31452, 31453],
+	"nw": [31456, 31457, 31458, 31459, 31460, 31461],
+}
+
 var weapon_enabled := true
 var idle_candidate_name := "A"
 var walk_candidate_name := "A"
@@ -93,6 +125,7 @@ var _sprite: Sprite2D
 var _hud: Label
 
 var _weapon_dir := ""
+var _last_weapon_action := ""
 var _current_abs_idx := -1
 # HUD-only mirrors of the current run frame indices (-1 when not running).
 var _hud_run_body_frame := -1
@@ -118,12 +151,15 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	var info: Dictionary = _player.get_frame_info()
 	var anim := String(info["animation_name"])
+	# Direction is always the LAST underscore segment; the action is everything
+	# before it. Action names may contain underscores (attack_onehand), so
+	# get_slice("_", 0) would wrongly yield "attack" and dir would be "onehand".
 	var dir := "s"
-	if "_" in anim:
-		dir = anim.get_slice("_", 1)
 	var action := ""
-	if "_" in anim:
-		action = anim.get_slice("_", 0)
+	var us := anim.rfind("_")
+	if us > 0:
+		dir = anim.substr(us + 1)
+		action = anim.left(us)
 	var body_frame := int(info["godot_frame"])
 	if body_frame < 0:
 		body_frame = 0
@@ -132,14 +168,24 @@ func _process(_delta: float) -> void:
 		_update_weapon_layer(dir)
 
 	var frames: Array
-	if action == "walk":
-		frames = _walk_candidate().get(dir, [])
-	elif action == "run":
-		frames = RUN_FRAMES.get(dir, [])
-	else:
-		# idle and all other actions (pose/attack/death...): keep showing
-		# the current direction's idle weapon frames (existing behavior).
-		frames = _idle_candidate().get(dir, [])
+	var weapon_action := "idle"
+	match action:
+		"walk":
+			frames = _walk_candidate().get(dir, [])
+			weapon_action = "walk"
+		"run":
+			frames = RUN_FRAMES.get(dir, [])
+			weapon_action = "run"
+		"pose":
+			frames = POSE_FRAMES.get(dir, [])
+			weapon_action = "pose"
+		"attack_onehand":
+			frames = ATTACK_ONEHAND_FRAMES.get(dir, [])
+			weapon_action = "attack_onehand"
+		_:
+			# idle and all other actions (twohand/power/cast/dig/hit/death...):
+			# keep showing the current direction's idle weapon frames.
+			frames = _idle_candidate().get(dir, [])
 
 	var frame_idx := 0
 	if not frames.is_empty():
@@ -151,9 +197,12 @@ func _process(_delta: float) -> void:
 	else:
 		_hud_run_body_frame = -1
 		_hud_weapon_run_frame = -1
+	if weapon_action != _last_weapon_action:
+		print("[weapon] action %s -> %s  dir=%s  body_frame=%d" % [_last_weapon_action, weapon_action, dir, body_frame])
+		_last_weapon_action = weapon_action
 	_apply_frame(frames, frame_idx)
 	_walk_e_diagnostic(anim, body_frame, info)
-	_update_hud(anim, dir, body_frame, info)
+	_update_hud(anim, action, dir, body_frame, info, weapon_action, frame_idx)
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -244,7 +293,9 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 
 
 func _preload_weapon_data() -> void:
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES]:
+	# Only the indices listed above are checked/loaded. Blank slots inside
+	# 31400-31463 (e.g. 31406-31407) appear in no array and are never touched.
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -272,21 +323,28 @@ func _read_placement(abs_idx: int) -> Vector2:
 	return Vector2(float(line_x.split(",")[0]), float(line_y.split(",")[0]))
 
 
-func _update_hud(anim: String, dir: String, body_frame: int, info: Dictionary) -> void:
+func _update_hud(anim: String, action: String, dir: String, body_frame: int, info: Dictionary, weapon_action: String, frame_idx: int) -> void:
 	var plc: Vector2 = _placements.get(_current_abs_idx, Vector2.ZERO)
-	_hud.text = "\n".join([
+	var lines: PackedStringArray = [
 		"Weapon Test  F5=show/hide  1/2=idle cand A/B  F7/F8=walk cand A/B",
 		"fine-tune: arrows=+/-1px (arrows also move the character, tap briefly)  0=reset adjustment",
-		"anim=%s  dir=%s  body_frame=%d  body_abs_idx=%d" % [anim, dir, body_frame, int(info["absolute_index"])],
-		"current_direction=%s  body_z_index=%d  weapon_z_index=%d  weapon_layer=%s" % [
-			dir, _body_sprite.z_index, _sprite.z_index,
-			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
-		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d  weapon_abs_idx=%d" % [
-			_hud_run_body_frame, _hud_weapon_run_frame, _current_abs_idx],
-		"weapon idx=%d  png exists=%s" % [_current_abs_idx, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"],
+		"body anim=%s  body dir=%s  body frame=%d  body_abs_idx=%d" % [anim, dir, body_frame, int(info["absolute_index"])],
+		"weapon action=%s  weapon dir=%s  weapon frame=%d  weapon_abs_idx=%d" % [weapon_action, dir, frame_idx, _current_abs_idx],
+		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d" % [_hud_run_body_frame, _hud_weapon_run_frame],
+		"Pose frames=31392-31399 (candidate)  AttackOnehand valid slots in 31400-31461 (candidate)",
+		"weapon png exists=%s" % (str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"),
 		"Raw Weapon Placement = (%.1f, %.1f)" % [plc.x, plc.y],
 		"Test Adjustment      = (%.1f, %.1f)" % [weapon_test_adjustment.x, weapon_test_adjustment.y],
 		"Final Weapon Position= (%.1f, %.1f)  [WeaponAnchor.position]" % [_anchor.position.x, _anchor.position.y],
 		"WeaponSprite.position=(%.1f, %.1f)  centered=false flip_h=false" % [_sprite.position.x, _sprite.position.y],
-		"WeaponAnchor parent path = %s" % str(_anchor.get_path()),
-	])
+		"current_direction=%s  body_z_index=%d  weapon_z_index=%d  weapon_layer=%s" % [
+			dir, _body_sprite.z_index, _sprite.z_index,
+			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
+	]
+	if weapon_action == "attack_onehand":
+		var png_path := ("res://Weapon/%05d.png" % _current_abs_idx) if _current_abs_idx >= 0 else ""
+		lines.append("J-diag body_animation=%s parsed_action=%s parsed_direction=%s body_frame=%d weapon_action=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_path=%s weapon_png_exists=%s weapon_visible=%s weapon_layer_enabled=%s" % [
+			anim, action, dir, body_frame, weapon_action, frame_idx, _current_abs_idx,
+			png_path, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",
+			str(_sprite.visible), str(weapon_enabled)])
+	_hud.text = "\n".join(lines)
