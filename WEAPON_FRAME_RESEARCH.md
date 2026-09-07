@@ -339,3 +339,66 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
   以及帧序是否与身体双手攻击动作对齐。
 - 未修改：Weapon Idle/Walk/Run/Pose/单手攻击、Placement、前后图层规则、Hum 人物。
 - 未修改：Weapon Idle/Walk/Run/Pose、Placement、前后图层规则、Hum 人物、PNG/TXT。
+
+## 12. Cast 施法（U 键，2026-09-07）
+
+### 12.1 范围与冻结声明
+
+- 已冻结且本轮未改动：Weapon Idle、Walk、Run、Pose、J 单手攻击、K 双手攻击、
+  L 强力攻击、Weapon Placement、w/nw/sw 前后遮挡规则。
+- 只新增 U 键 cast 武器帧映射；不添加 dig/hit/death 帧；不扫描 Weapon 目录；
+  不修改 Hum 人物与正式测试场景。
+
+### 12.2 Cast 映射表（31592–31653）
+
+按与 idle/walk/run/onehand/twohand 相同的布局：每方向占一个 8 索引槽位
+（N, NE, E, SE, S, SW, W, NW，起始偏移 +0/+8/+16/+24/+32/+40/+48/+56），前 6 帧有效。
+
+| 方向 | Cast 索引（每方向 6 帧） |
+|------|------------------------|
+| n    | 31592, 31593, 31594, 31595, 31596, 31597 |
+| ne   | 31600, 31601, 31602, 31603, 31604, 31605 |
+| e    | 31608, 31609, 31610, 31611, 31612, 31613 |
+| se   | 31616, 31617, 31618, 31619, 31620, 31621 |
+| s    | 31624, 31625, 31626, 31627, 31628, 31629 |
+| sw   | 31632, 31633, 31634, 31635, 31636, 31637 |
+| w    | 31640, 31641, 31642, 31643, 31644, 31645 |
+| nw   | 31648, 31649, 31650, 31651, 31652, 31653 |
+
+空槽（无 PNG，不属于动画，永不加载）：31598-31599、31606-31607、31614-31615、
+31622-31623、31630-31631、31638-31639、31646-31647、31654-31655。
+
+### 12.3 PNG/Placement 存在性检查（只检查指定索引，未扫描整个 Weapon 目录）
+
+| 方向 | 有效帧索引 | PNG 存在 | Placement 存在 |
+|------|-----------|----------|----------------|
+| n    | 31592-31597 | 6/6 | 6/6 |
+| ne   | 31600-31605 | 6/6 | 6/6 |
+| e    | 31608-31613 | 6/6 | 6/6 |
+| se   | 31616-31621 | 6/6 | 6/6 |
+| s    | 31624-31629 | 6/6 | 6/6 |
+| sw   | 31632-31637 | 6/6 | 6/6 |
+| w    | 31640-31645 | 6/6 | 6/6 |
+| nw   | 31648-31653 | 6/6 | 6/6 |
+
+**结论：48/48 PNG 全部存在，48/48 Placement 全部存在。**
+
+### 12.4 实现（scripts/experiments/weapon_idle_test.gd）
+
+- 新增常量 `CAST_FRAMES`（上表索引），加入预加载列表；
+  每张武器 PNG 读取同编号 Placement TXT：`res://Weapon/Placements/%05d.txt`。
+- `_process()` match 新增 `"cast"` 分支：身体播放 `cast_<dir>` 时，
+  武器按上表对应方向显示帧。
+- 帧同步：身体 cast 每方向 6 帧，同序号同步——身体帧 N → 武器帧 N（N = 0..5），
+  与 idle/walk/run/攻击一致；不使用独立计时器、不做 `31200 + local` 类计算。
+- 复用已验证机制，未改动：WeaponAnchor.position = weapon_placement（+实验微调）、
+  w/nw/sw 身体在前 / 其余方向武器在前的遮挡规则、缺图清帧不保留上一帧。
+- HUD 追加 U-diag 行（与 J/K/L-diag 同字段）：cast 时显示 `weapon_action=cast`
+  与当前 `weapon_absolute_index`；动作切换时在 Godot Output 打印一次。
+
+### 12.5 验证状态
+
+- Godot 语法检查：通过（`--check-only --script`）。
+- **待用户实机确认（按 U）：** 身体播放 cast_<dir>，武器显示 31592–31653 对应方向帧，
+  HUD 显示 weapon_action=cast 与当前 weapon_absolute_index。
+- 未修改：Weapon Idle/Walk/Run/Pose/J/K/L、Placement、前后图层规则、Hum 人物、PNG/TXT。
