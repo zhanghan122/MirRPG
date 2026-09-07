@@ -1,33 +1,40 @@
-# Godot生成的缓存
+# Godot自动生成的导入缓存
 .godot/
 
-# 大型原始素材
+# 原始图片与Placement素材
 Hum/
 Hair/
 Head/
 Weapon/
 WeaponEffect/
 
-# Godot程序
+# 其他大型素材目录
+Assets/
+assets/raw/
+Exported/
+
+# Godot编辑器和运行程序
 Godot.exe
 Godot_*.exe
 Godot*.exe
+*.pck
 
-# 临时日志和验证文件
+# OpenCode本地配置
+opencode.json
+
+# 检查、诊断和临时日志
 *.log
-_godot_pid.txt
 _check*
+_verify*
 _v.log
 _ve.log
+_godot_pid.txt
 
-# OpenCode临时验证场景
-scenes/_verify_*.tscn
-scripts/_verify_*.gd
-
-# 本地损坏版本备份
+# 故障备份与本地快照
 _broken_layer_backup/
+_stable_snapshots/
 
-# 系统文件
+# Windows和其他系统文件
 Thumbs.db
 Desktop.ini
 .DS_Store
