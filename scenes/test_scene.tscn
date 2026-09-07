@@ -8,3 +8,5 @@ script = ExtResource("2_test")
 
 [node name="CharacterBody2D" parent="." instance=ExtResource("1_char")]
 position = Vector2(640, 360)
+appearance_id = 0
+preset_name = "Hum Appearance 01"

@@ -402,3 +402,49 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
 - **待用户实机确认（按 U）：** 身体播放 cast_<dir>，武器显示 31592–31653 对应方向帧，
   HUD 显示 weapon_action=cast 与当前 weapon_absolute_index。
 - 未修改：Weapon Idle/Walk/Run/Pose/J/K/L、Placement、前后图层规则、Hum 人物、PNG/TXT。
+
+## 13. Dig 挖掘武器帧研究（I 键，2026-09-07）
+
+### 13.1 范围
+
+- 只新增 I 键 dig 武器帧映射；不添加 hit/death 帧；不扫描 Weapon 目录；
+  不修改 `hum_character.gd`、`hum_frames.gd`、任何 Placement TXT。
+- 身体侧规格来自 `hum_frames.gd` / HUM_FRAME_RULES.md：dig 本地索引 456–471，
+  每方向 2 帧，8 fps，非循环；按键 I（`hum_character.gd` KEY_I → `_start_action("dig")`）。
+
+### 13.2 Weapon dig 映射（用户提供，候选）
+
+与 idle/walk/run/onehand/twohand/cast 相同的 8 索引槽位布局：每方向占一个 8 索引槽
+（起始偏移 +0/+8/+16/+24/+32/+40/+48/+56），每槽只有前 2 帧有效，后 6 个索引为填充。
+
+| 方向 | Weapon 绝对索引（帧0, 帧1） | 空白槽（不加载、不显示） |
+|------|----------------------------|--------------------------|
+| n    | 31656, 31657               | 31658–31663              |
+| ne   | 31664, 31665               | 31666–31671              |
+| e    | 31672, 31673               | 31674–31679              |
+| se   | 31680, 31681               | 31682–31687              |
+| s    | 31688, 31689               | 31690–31695              |
+| sw   | 31696, 31697               | 31698–31703              |
+| w    | 31704, 31705               | 31706–31711              |
+| nw   | 31712, 31713               | 31714–31719              |
+
+### 13.3 PNG/Placement 存在性检查（只检查指定索引，未扫描整个 Weapon 目录）
+
+- 16/16 PNG 全部存在：`res://Weapon/%05d.png`
+- 16/16 Placement 全部存在：`res://Weapon/Placements/%05d.txt`
+- 空白槽不进入任何数组，永不加载、永不显示。
+
+### 13.4 实现（scripts/experiments/weapon_idle_test.gd）
+
+- 新增常量 `DIG_FRAMES`（上表映射）。
+- `_process()` match 新增 `"dig"` 分支：身体动画名 `dig_<dir>` → 武器使用 `DIG_FRAMES[dir]`。
+- 帧同步规则与其他动作完全一致：**身体 dig 第 N 帧 -> 武器 dig 第 N 帧**（N = 0..1，同索引同步）。
+- `_preload_weapon_data()` 预加载列表加入 DIG_FRAMES；只检查/加载指定 16 个索引。
+- HUD 新增 Dig 映射说明行与 `I-diag` 诊断行（当前动作 / 方向 / 帧号 / 绝对索引 / PNG 路径 / 是否存在）。
+
+### 13.5 验证状态
+
+- Godot headless：`--check-only --script` 通过；测试场景加载运行 10 帧无错误。
+- **待用户实机确认（按 I）：** 身体播放 dig_<dir>，武器显示上表对应方向帧，
+  HUD 显示 weapon_action=dig 与当前 weapon_absolute_index。
+- 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U、Placement、前后图层规则、Hum 人物、PNG/TXT。

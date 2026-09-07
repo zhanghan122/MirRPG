@@ -6,7 +6,8 @@ extends Node2D
 # + AttackTwohand (candidate mapping, pending live verification).
 # + AttackPower (candidate mapping 31528-31591, pending live verification).
 # + Cast (U key): body cast_<dir> -> CAST_FRAMES[dir] (31592-31653), candidate.
-# No dig/hit/death weapon frames yet.
+# + Dig (I key): body dig_<dir> -> DIG_FRAMES[dir] (31656-31719, 2 frames/dir).
+# No hit/death weapon frames yet.
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -155,6 +156,24 @@ const CAST_FRAMES := {
 	"nw": [31648, 31649, 31650, 31651, 31652, 31653],
 }
 
+# Dig (31656-31719): same 8-index slot layout as idle/walk/run/onehand/twohand/cast,
+# first 2 frames valid per direction; the last 6 slots of each direction are blank.
+# Blank slots (31658-31663, 31666-31671, 31674-31679, 31682-31687, 31690-31695,
+# 31698-31703, 31706-31711, 31714-31719) are NOT part of the animation and must
+# never be loaded or displayed.
+# Body dig_<dir> is 2 frames per direction (non-looping): body frame N -> weapon
+# frame N (0..1). Candidate mapping; pending live verification (I key).
+const DIG_FRAMES := {
+	"n": [31656, 31657],
+	"ne": [31664, 31665],
+	"e": [31672, 31673],
+	"se": [31680, 31681],
+	"s": [31688, 31689],
+	"sw": [31696, 31697],
+	"w": [31704, 31705],
+	"nw": [31712, 31713],
+}
+
 var weapon_enabled := true
 var idle_candidate_name := "A"
 var walk_candidate_name := "A"
@@ -238,8 +257,11 @@ func _process(_delta: float) -> void:
 		"cast":
 			frames = CAST_FRAMES.get(dir, [])
 			weapon_action = "cast"
+		"dig":
+			frames = DIG_FRAMES.get(dir, [])
+			weapon_action = "dig"
 		_:
-			# idle and all other actions (dig/hit/death...):
+			# idle and all other actions (hit/death...):
 			# keep showing the current direction's idle weapon frames.
 			frames = _idle_candidate().get(dir, [])
 
@@ -351,7 +373,7 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 func _preload_weapon_data() -> void:
 	# Only the indices listed above are checked/loaded. Blank slots inside
 	# 31400-31463 (e.g. 31406-31407) appear in no array and are never touched.
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES]:
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES, DIG_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -388,7 +410,7 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 		"weapon action=%s  weapon dir=%s  weapon frame=%d  weapon_abs_idx=%d" % [weapon_action, dir, frame_idx, _current_abs_idx],
 		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d" % [_hud_run_body_frame, _hud_weapon_run_frame],
 		"Pose=31392-31399 Onehand=31400-31461 (verified)  AttackTwohand valid slots in 31464-31525 (candidate)",
-		"AttackPower=31528-31591 (candidate, L key)",
+		"AttackPower=31528-31591 (candidate, L key)  Dig=31656-31719 (I key, candidate)",
 		"weapon png exists=%s" % (str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"),
 		"Raw Weapon Placement = (%.1f, %.1f)" % [plc.x, plc.y],
 		"Test Adjustment      = (%.1f, %.1f)" % [weapon_test_adjustment.x, weapon_test_adjustment.y],
@@ -398,11 +420,12 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 			dir, _body_sprite.z_index, _sprite.z_index,
 			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
 	]
-	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power", "cast"]:
+	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power", "cast", "dig"]:
 		var png_path := ("res://Weapon/%05d.png" % _current_abs_idx) if _current_abs_idx >= 0 else ""
 		var diag_tag := "J-diag" if weapon_action == "attack_onehand" else (
 			"K-diag" if weapon_action == "attack_twohand" else (
-				"L-diag" if weapon_action == "attack_power" else "U-diag"))
+				"L-diag" if weapon_action == "attack_power" else (
+					"I-diag" if weapon_action == "dig" else "U-diag")))
 		lines.append("%s body_animation=%s parsed_action=%s parsed_direction=%s body_frame=%d weapon_action=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_path=%s weapon_png_exists=%s weapon_visible=%s weapon_layer_enabled=%s" % [
 			diag_tag, anim, action, dir, body_frame, weapon_action, frame_idx, _current_abs_idx,
 			png_path, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",

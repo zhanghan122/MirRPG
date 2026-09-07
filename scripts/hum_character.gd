@@ -10,6 +10,7 @@ const _DIR_MAP := {
 
 @export var appearance_id: int = 0
 @export var preset_name: String = ""
+# Compatibility stub for preset .tscn files; no effect in single-body mode.
 @export var weapon_enabled: bool = false
 
 var appearance_base: int = 0
@@ -18,6 +19,9 @@ var action_locked := false
 var dead := false
 var current_action := "idle"
 var last_direction := "s"
+# True while the I key is held during a dig action. Lets the current dig round
+# replay on animation_finished instead of falling back to idle (hold-to-dig).
+var dig_held := false
 
 var _sprite: AnimatedSprite2D
 var _anchor: Node2D
@@ -50,6 +54,10 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	# Hold-to-dig release detection: if I is no longer held, let the current dig
+	# round finish; animation_finished then restores idle_<last_direction>.
+	if current_action == "dig" and not Input.is_key_pressed(KEY_I):
+		dig_held = false
 	if dead or action_locked:
 		velocity = Vector2.ZERO
 		move_and_slide()
@@ -84,8 +92,31 @@ func recover() -> void:
 		return
 	dead = false
 	action_locked = false
+	dig_held = false
 	current_action = "idle"
 	velocity = Vector2.ZERO
+	_play("idle_" + last_direction)
+
+
+# Runtime appearance switch (test scene F7/F8). Rebuilds all 11x8 animations
+# and the placement cache for the new body set.
+func set_appearance(new_id: int, new_preset_name: String = "") -> void:
+	if dead or new_id == appearance_id:
+		return
+	appearance_id = new_id
+	if not new_preset_name.is_empty():
+		preset_name = new_preset_name
+	HumFrames.set_appearance(appearance_id)
+	appearance_base = appearance_id * 600
+	action_locked = false
+	dig_held = false
+	current_action = "idle"
+	velocity = Vector2.ZERO
+	_frames = SpriteFrames.new()
+	_rebuild_sprite_frames()
+	_placement_cache.clear()
+	_preload_placements()
+	_sprite.sprite_frames = _frames
 	_play("idle_" + last_direction)
 
 
@@ -103,6 +134,8 @@ func get_frame_info() -> Dictionary:
 		"animation_name": key,
 		"godot_frame": fi,
 		"absolute_index": abs_idx,
+		"action_locked": action_locked,
+		"dig_held": dig_held,
 	}
 
 
@@ -110,6 +143,7 @@ func _start_action(action: String) -> void:
 	if dead or action == current_action:
 		return
 	_debug_override = false
+	dig_held = action == "dig" and dig_held
 	velocity = Vector2.ZERO
 	action_locked = true
 	current_action = action
@@ -143,7 +177,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_U:
 			_start_action("cast")
 		KEY_I:
-			_start_action("dig")
+			if not dead:
+				dig_held = true
+				_start_action("dig")
 		KEY_H:
 			_start_action("hit")
 		KEY_Y:
@@ -170,8 +206,12 @@ func _on_animation_finished() -> void:
 		dead = true
 		action_locked = true
 		return
-	if action_locked:
-		action_locked = false
+	if action_locked and current_action == "dig" and dig_held \
+			and Input.is_key_pressed(KEY_I):
+		# Hold-to-dig: I is still held, replay the same dig round in place.
+		_play("dig_" + last_direction)
+		return
+	action_locked = false
 	current_action = "idle"
 	_play("idle_" + last_direction)
 
