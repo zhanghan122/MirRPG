@@ -2,8 +2,10 @@ extends Node2D
 
 # ============================================================
 # Weapon experiment: Idle + Walk (verified, frozen) + Run (user-verified, frozen)
-# + Pose / AttackOnehand (candidate mappings, pending live verification).
-# No twohand/power/cast/dig/hit/death weapon frames yet.
+# + Pose / AttackOnehand (user-verified, frozen)
+# + AttackTwohand (candidate mapping, pending live verification).
+# + AttackPower (candidate mapping 31528-31591, pending live verification).
+# No cast/dig/hit/death weapon frames yet.
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -96,7 +98,7 @@ const POSE_FRAMES := {
 # first 6 frames valid per direction. Blank slots (31406-31407, 31414-31415,
 # 31422-31423, 31430-31431, 31438-31439, 31446-31447, 31454-31455, 31462-31463)
 # are NOT part of the animation and must never be loaded or displayed.
-# Candidate mapping; pending live verification (J key).
+# User-verified live (J key); frozen.
 const ATTACK_ONEHAND_FRAMES := {
 	"n": [31400, 31401, 31402, 31403, 31404, 31405],
 	"ne": [31408, 31409, 31410, 31411, 31412, 31413],
@@ -106,6 +108,35 @@ const ATTACK_ONEHAND_FRAMES := {
 	"sw": [31440, 31441, 31442, 31443, 31444, 31445],
 	"w": [31448, 31449, 31450, 31451, 31452, 31453],
 	"nw": [31456, 31457, 31458, 31459, 31460, 31461],
+}
+
+# Attack twohand (31464-31525): same 8-index slot layout as idle/walk/run/onehand,
+# first 6 frames valid per direction. Blank slots (31470-31471, 31478-31479,
+# 31486-31487, 31494-31495, 31502-31503, 31510-31511, 31518-31519, 31526-31527)
+# are NOT part of the animation and must never be loaded or displayed.
+# Candidate mapping; pending live verification (K key).
+const ATTACK_TWOHAND_FRAMES := {
+	"n": [31464, 31465, 31466, 31467, 31468, 31469],
+	"ne": [31472, 31473, 31474, 31475, 31476, 31477],
+	"e": [31480, 31481, 31482, 31483, 31484, 31485],
+	"se": [31488, 31489, 31490, 31491, 31492, 31493],
+	"s": [31496, 31497, 31498, 31499, 31500, 31501],
+	"sw": [31504, 31505, 31506, 31507, 31508, 31509],
+	"w": [31512, 31513, 31514, 31515, 31516, 31517],
+	"nw": [31520, 31521, 31522, 31523, 31524, 31525],
+}
+# Power attack (31528-31591): 8 frames per direction, mirrors body attack_power
+# local 328-391. All 64 files exist with no blank slots. Candidate mapping;
+# pending live verification (L key).
+const ATTACK_POWER_FRAMES := {
+	"n": [31528, 31529, 31530, 31531, 31532, 31533, 31534, 31535],
+	"ne": [31536, 31537, 31538, 31539, 31540, 31541, 31542, 31543],
+	"e": [31544, 31545, 31546, 31547, 31548, 31549, 31550, 31551],
+	"se": [31552, 31553, 31554, 31555, 31556, 31557, 31558, 31559],
+	"s": [31560, 31561, 31562, 31563, 31564, 31565, 31566, 31567],
+	"sw": [31568, 31569, 31570, 31571, 31572, 31573, 31574, 31575],
+	"w": [31576, 31577, 31578, 31579, 31580, 31581, 31582, 31583],
+	"nw": [31584, 31585, 31586, 31587, 31588, 31589, 31590, 31591],
 }
 
 var weapon_enabled := true
@@ -182,8 +213,14 @@ func _process(_delta: float) -> void:
 		"attack_onehand":
 			frames = ATTACK_ONEHAND_FRAMES.get(dir, [])
 			weapon_action = "attack_onehand"
+		"attack_twohand":
+			frames = ATTACK_TWOHAND_FRAMES.get(dir, [])
+			weapon_action = "attack_twohand"
+		"attack_power":
+			frames = ATTACK_POWER_FRAMES.get(dir, [])
+			weapon_action = "attack_power"
 		_:
-			# idle and all other actions (twohand/power/cast/dig/hit/death...):
+			# idle and all other actions (cast/dig/hit/death...):
 			# keep showing the current direction's idle weapon frames.
 			frames = _idle_candidate().get(dir, [])
 
@@ -295,7 +332,7 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 func _preload_weapon_data() -> void:
 	# Only the indices listed above are checked/loaded. Blank slots inside
 	# 31400-31463 (e.g. 31406-31407) appear in no array and are never touched.
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES]:
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -331,7 +368,8 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 		"body anim=%s  body dir=%s  body frame=%d  body_abs_idx=%d" % [anim, dir, body_frame, int(info["absolute_index"])],
 		"weapon action=%s  weapon dir=%s  weapon frame=%d  weapon_abs_idx=%d" % [weapon_action, dir, frame_idx, _current_abs_idx],
 		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d" % [_hud_run_body_frame, _hud_weapon_run_frame],
-		"Pose frames=31392-31399 (candidate)  AttackOnehand valid slots in 31400-31461 (candidate)",
+		"Pose=31392-31399 Onehand=31400-31461 (verified)  AttackTwohand valid slots in 31464-31525 (candidate)",
+		"AttackPower=31528-31591 (candidate, L key)",
 		"weapon png exists=%s" % (str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"),
 		"Raw Weapon Placement = (%.1f, %.1f)" % [plc.x, plc.y],
 		"Test Adjustment      = (%.1f, %.1f)" % [weapon_test_adjustment.x, weapon_test_adjustment.y],
@@ -341,10 +379,11 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 			dir, _body_sprite.z_index, _sprite.z_index,
 			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
 	]
-	if weapon_action == "attack_onehand":
+	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power"]:
 		var png_path := ("res://Weapon/%05d.png" % _current_abs_idx) if _current_abs_idx >= 0 else ""
-		lines.append("J-diag body_animation=%s parsed_action=%s parsed_direction=%s body_frame=%d weapon_action=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_path=%s weapon_png_exists=%s weapon_visible=%s weapon_layer_enabled=%s" % [
-			anim, action, dir, body_frame, weapon_action, frame_idx, _current_abs_idx,
+		var diag_tag := "J-diag" if weapon_action == "attack_onehand" else ("K-diag" if weapon_action == "attack_twohand" else "L-diag")
+		lines.append("%s body_animation=%s parsed_action=%s parsed_direction=%s body_frame=%d weapon_action=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_path=%s weapon_png_exists=%s weapon_visible=%s weapon_layer_enabled=%s" % [
+			diag_tag, anim, action, dir, body_frame, weapon_action, frame_idx, _current_abs_idx,
 			png_path, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",
 			str(_sprite.visible), str(weapon_enabled)])
 	_hud.text = "\n".join(lines)
