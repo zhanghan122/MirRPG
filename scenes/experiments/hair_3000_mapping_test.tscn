@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/hum_character.tscn" id="1_char"]
+[ext_resource type="Script" path="res://scripts/experiments/hair_3000_mapping_test.gd" id="2_script"]
+
+[node name="Hair3000MappingTest" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="StableHumCharacter" parent="." instance=ExtResource("1_char")]
+
+[node name="HairAnchor" type="Node2D" parent="StableHumCharacter"]
+
+[node name="HairSprite" type="Sprite2D" parent="StableHumCharacter/HairAnchor"]
+centered = false
+position = Vector2(0, 0)
+offset = Vector2(0, 0)
+flip_h = false
+visible = true
+modulate = Color(1, 1, 1, 1)
+scale = Vector2(1, 1)
+
+[node name="HudCanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HudLabel" type="Label" parent="HudCanvasLayer"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 720.0
+offset_bottom = 340.0
+text = ""

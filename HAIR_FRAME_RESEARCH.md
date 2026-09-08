@@ -76,8 +76,8 @@
 |---|---|
 | Hair Group A（1200–1799）资源存在 | FILE-LEVEL VERIFIED（416/416 有效 PNG + 416/416 Placement 全部存在，磁盘实测；视觉确认待实机） |
 | Hair Group B（1800–2399）资源存在 | CANDIDATE（用户观察到的候选组，帧结构未验证） |
-| Hair Group C（3000–3599）资源存在 | CANDIDATE（用户观察到的候选组，帧结构未验证） |
-| 600 索引槽 / 416 张有效帧的组结构 | FILE-LEVEL VERIFIED for Group A（按标准 416 有效 local_index 逐一检查全部命中；视觉确认待实机） |
+| Hair Group C（3000–3599）资源存在 | FILE-LEVEL VERIFIED（416/416 有效 PNG + 416/416 Placement 全部存在，磁盘实测；视觉确认待实机） |
+| 600 索引槽 / 416 张有效帧的组结构 | FILE-LEVEL VERIFIED for Group A 与 Group C（均按标准 416 有效 local_index 逐一检查全部命中；视觉确认待实机） |
 | hair_movement_test 实现 | FAILED（实机没有显示任何 Hair） |
 | Hair Idle / Walk / Run 实现 | NOT IMPLEMENTED |
 | Hair 组与身体类型 / 头部类别对应关系 | NOT IMPLEMENTED（不能确定） |
@@ -205,4 +205,40 @@ HairFullMappingTest (Node2D)
 ### 8.4 范围声明
 
 本次只处理 Group A（1200–1799）。不处理 Hair 1800 组、3000 组、2400–2999 零散文件；不涉及 Weapon / 背包 / 换装 / 正式 Hum 集成 / 24 套身体预设修改。
+
+## 9. Hair 3000 组完整动作同步实验（hair_3000_mapping_test，Group C）— 2026-09-08
+
+本轮按用户指令对 **Hair Group C（hair_base=3000，占用 3000–3599）** 实现完整 600 索引动作同步。
+独立实验场景；逻辑为已实机验证的 Group A（`hair_full_mapping_test.gd`）原样复制，仅改基址与 HUD 标题。
+
+### 9.1 文件验证（构建前磁盘实测）
+
+只检查标准有效 local_index 对应的文件（空槽不计为缺失帧），范围 03000–03595：
+
+| 项目 | 结果 |
+|---|---|
+| 应有有效 PNG 数量 | **416** |
+| 实际存在 PNG 数量 | **416** |
+| 缺失的 absolute_index 列表（PNG） | **无** |
+| Placement 应有 / 实际 | **416 / 416** |
+| Placement 缺失列表 | **无** |
+
+结论：Group C 文件名完整符合标准 416 有效帧结构（idle 32 / walk 48 / run 48 / pose 8 / J 48 / K 48 / L 64 / U 48 / I 16 / H 24 / Y 32）。
+注意：第 7.4 节的像素分析结论仍然成立——本批 PNG 均为 <700B 小碎片（最大约 20×22px），实机能否形成可识别发型待用户观察。
+
+### 9.2 实现内容
+
+- 新文件：`scripts/experiments/hair_3000_mapping_test.gd`、`scenes/experiments/hair_3000_mapping_test.tscn`（根节点 `Hair3000MappingTest`）。
+- 与 Group A 实现的唯一差异：`const HAIR_BASE := 3000`；HUD 首行 `HAIR GROUP 3000 TEST`；启动报告标题同步。其余逻辑、场景结构、缓存策略完全一致（见第 8.2 节）。
+- Mapping：`hair_absolute_index = 3000 + local_index`，local_index 直接取自 `HumFrames.HUM_ACTIONS[action]["frames"][direction][body_frame]`；PNG / Placement 同编号 `%05d`。
+- F5 = 显示/隐藏 Hair 层；HUD 字段与 Group A 相同（hair_base=3000）。
+
+### 9.3 验证状态
+
+- headless 短检查（`--quit-after 10`）：已执行，无 Parse / Script / 资源路径错误。
+- 用户实机测试：**待进行**（IN PROGRESS）。
+
+### 9.4 范围声明
+
+本次只处理 Group C（3000–3599）。不处理 Hair 1800 组、2400–2999 零散文件；不涉及 Weapon / 背包 / 换装 / 正式 Hum 集成 / 24 套身体预设修改。
 
