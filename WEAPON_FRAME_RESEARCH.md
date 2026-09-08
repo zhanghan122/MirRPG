@@ -526,6 +526,81 @@ weapon_action=death  weapon_absolute_index=<当前绝对索引>  holding_death_l
 ### 14.6 验证状态
 
 - Godot headless：`--check-only --script` 通过；测试场景加载运行无错误。
-- **待用户实机确认（按 Y，再按 R）：** 身体播放 death_<dir>，武器同步显示上表对应方向帧；
-  动画结束后武器保持第 4 帧不消失；按 R 后身体回 idle、武器立即回到该方向 Idle 第 1 帧。
+- **已用户实机确认（Y/R）：** Death 映射正确，死亡后保持第 4 帧、R 恢复 Idle 均正常。
+  Death 与 R 恢复现已冻结。
 - 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U/I、Placement、前后图层规则、Hum 人物、PNG/TXT。
+
+## 15. Hit 受击武器帧（H 键，2026-09-08）
+
+### 15.1 范围与冻结声明
+
+- 已实机确认并冻结：Weapon Idle、Walk、Run、Pose、J/K/L/U、Y 死亡、R 恢复、
+  Weapon Placement、w/nw/sw 前后遮挡规则、Hum 人物（`hum_character.gd/.tscn`）。
+- 用户确认 **31656–31671 是挖地帧**；本轮不修改 DIG_FRAMES。注意：旧 DIG_FRAMES 的
+  e/se/s/sw/w/nw 条目（31672/31680/31688/31696/31704/31712 起）与本轮 Hit 候选区重叠，
+  属于未验证旧映射，留待后续单独复核挖地；本轮保持原样。
+- 只新增 H 键 hit 武器帧候选映射；不扫描 Weapon 目录，只检查指定 24 个索引；
+  不修改任何 Placement TXT / PNG、Offset、图层规则。
+
+### 15.2 Hit 候选映射表（31672–31735）
+
+与所有动作相同的 8 索引槽位布局：每方向占一个 8 索引槽
+（N, NE, E, SE, S, SW, W, NW，起始偏移 +0/+8/+16/+24/+32/+40/+48/+56），前 3 帧有效。
+
+| 方向 | Hit 索引（每方向 3 帧） |
+|------|------------------------|
+| n    | 31672, 31673, 31674 |
+| ne   | 31680, 31681, 31682 |
+| e    | 31688, 31689, 31690 |
+| se   | 31696, 31697, 31698 |
+| s    | 31704, 31705, 31706 |
+| sw   | 31712, 31713, 31714 |
+| w    | 31720, 31721, 31722 |
+| nw   | 31728, 31729, 31730 |
+
+空槽（无 PNG，不属于动画，永不加载）：31675-31679、31683-31687、31691-31695、
+31699-31703、31707-31711、31715-31719、31723-31727、31731-31735。
+
+### 15.3 PNG/Placement 存在性检查（只检查指定 24 个索引，未扫描整个 Weapon 目录）
+
+- **24/24 PNG 全部存在**：`res://Weapon/%05d.png`
+- **24/24 Placement 全部存在且非零**：`res://Weapon/Placements/%05d.txt`
+
+| 方向 | 帧0 | 帧1 | 帧2 |
+|------|-----|-----|-----|
+| n    | (35, -16)   | (35, -30)   | (36, -43)   |
+| ne   | (20, 0)     | (25, -5)    | (30, -12)   |
+| e    | (1, -4)     | (14, -6)    | (19, -7)    |
+| se   | (-46, -13)  | (-23, -12)  | (-5, -11)   |
+| s    | (-62, -41)  | (-58, -23)  | (-52, -19)  |
+| sw   | (-27, -68)  | (-45, -53)  | (-55, -47)  |
+| w    | (37, -72)   | (9, -69)    | (-11, -68)  |
+| nw   | (41, -49)   | (36, -61)   | (33, -69)   |
+
+### 15.4 实现（scripts/experiments/weapon_idle_test.gd）
+
+- 新增常量 `HIT_FRAMES`（上表），加入 `_preload_weapon_data()` 预加载列表；
+  启动时一次性读取 24 个索引的 PNG 与同编号 Placement TXT，运行时零磁盘读取。
+- `_process()` match 新增 `"hit"` 分支：身体播放 `hit_<dir>` 时，武器按同序号同步——
+  身体帧 N → 武器帧 N（N = 0..2），与 idle/walk/run/攻击一致；不使用独立计时器、
+  不做任何 `base + local` 类计算。本脚本只读取身体当前动画、方向和帧序号，
+  不控制或重新播放身体动画。
+- 缺图规则不变：当前帧 PNG 不存在 → `texture=null, visible=false`，不保留上一帧；
+  下一帧存在时自动恢复显示。
+- Placement/图层复用已验证机制，未改动：`WeaponAnchor.position = weapon_placement (+实验微调)`；
+  w/nw/sw 身体在前、其余方向武器在前（`_update_weapon_layer()` 不变）。
+
+### 15.5 HUD
+
+按 H（weapon_action == "hit_candidate"）时新增一行，仅含八个字段：
+
+```
+H-diag body_animation=<anim> body_direction=<dir> body_frame=<n> weapon_action=hit_candidate weapon_frame=<n> weapon_absolute_index=<idx> weapon_png_exists=<bool> weapon_placement=(x, y)
+```
+
+### 15.6 验证状态
+
+- Godot headless：`--check-only --script` 通过；测试场景加载运行无错误。
+- **待用户实机确认（按 H）：** 身体播放 hit_<dir>，武器同步显示上表对应方向帧，
+  HUD 显示 H-diag 行各字段。
+- 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U/I/Y/R、Placement、前后图层规则、Hum 人物、PNG/TXT。

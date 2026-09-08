@@ -12,7 +12,8 @@ extends Node2D
 #   death animation ends, the weapon holds that direction's 4th frame: no idle
 #   fallback, no loop, no disappearance. R recovers the body to idle_<dir> and
 #   the weapon returns to that direction's idle frame 0 (existing idle path).
-# Hit (H) is still skipped (shows the current direction's idle frames).
+# + Hit (H key): body hit_<dir> -> HIT_FRAMES[dir] (8-index slots from 31672,
+#   first 3 frames valid per direction), candidate mapping pending live check.
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -199,6 +200,26 @@ const DEATH_FRAMES := {
 	"nw": [31792, 31793, 31794, 31795],
 }
 
+# Hit (31672-31735): same 8-index slot layout as all other actions; first 3
+# frames valid per direction, matching body hit_<dir> (3 frames @ 10fps,
+# non-looping). Blank slots (31675-31679, 31683-31687, 31691-31695, 31699-31703,
+# 31707-31711, 31715-31719, 31723-31727, 31731-31735) are NOT part of the
+# animation and must never be loaded or displayed.
+# Body frame N -> weapon frame N (0..2). Candidate mapping; pending live
+# verification (H key). NOTE: user confirmed 31656-31671 as the dig frames, so
+# this region overlaps the old unverified DIG_FRAMES e..nw entries; dig is
+# frozen and untouched in this round.
+const HIT_FRAMES := {
+	"n": [31672, 31673, 31674],
+	"ne": [31680, 31681, 31682],
+	"e": [31688, 31689, 31690],
+	"se": [31696, 31697, 31698],
+	"s": [31704, 31705, 31706],
+	"sw": [31712, 31713, 31714],
+	"w": [31720, 31721, 31722],
+	"nw": [31728, 31729, 31730],
+}
+
 var weapon_enabled := true
 var idle_candidate_name := "A"
 var walk_candidate_name := "A"
@@ -291,8 +312,11 @@ func _process(_delta: float) -> void:
 		"death":
 			frames = DEATH_FRAMES.get(dir, [])
 			weapon_action = "death"
+		"hit":
+			frames = HIT_FRAMES.get(dir, [])
+			weapon_action = "hit_candidate"
 		_:
-			# idle and all other actions (hit...):
+			# idle and all other actions:
 			# keep showing the current direction's idle weapon frames.
 			frames = _idle_candidate().get(dir, [])
 
@@ -407,7 +431,7 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 func _preload_weapon_data() -> void:
 	# Only the indices listed above are checked/loaded. Blank slots inside
 	# 31400-31463 (e.g. 31406-31407) appear in no array and are never touched.
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES, DIG_FRAMES, DEATH_FRAMES]:
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES, DIG_FRAMES, DEATH_FRAMES, HIT_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -454,6 +478,11 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 			dir, _body_sprite.z_index, _sprite.z_index,
 			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
 	]
+	if weapon_action == "hit_candidate":
+		lines.append("H-diag body_animation=%s body_direction=%s body_frame=%d weapon_action=hit_candidate weapon_frame=%d weapon_absolute_index=%d weapon_png_exists=%s weapon_placement=(%.1f, %.1f)" % [
+			anim, dir, body_frame, frame_idx, _current_abs_idx,
+			str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",
+			plc.x, plc.y])
 	if weapon_action == "death":
 		lines.append("weapon_action=%s  weapon_absolute_index=%d  holding_death_last_frame=%s" % [
 			weapon_action, _current_abs_idx, str(_holding_death_last_frame)])
