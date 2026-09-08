@@ -448,3 +448,84 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
 - **待用户实机确认（按 I）：** 身体播放 dig_<dir>，武器显示上表对应方向帧，
   HUD 显示 weapon_action=dig 与当前 weapon_absolute_index。
 - 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U、Placement、前后图层规则、Hum 人物、PNG/TXT。
+
+## 14. Death 死亡武器帧（Y 键）与恢复（R 键，2026-09-08）
+
+### 14.1 范围与冻结声明
+
+- 已冻结且本轮未改动：Weapon Idle、Walk、Run、Pose、J/K/L/U、I(dig) 映射、
+  Weapon Placement、w/nw/sw 前后遮挡规则、Hum 人物（`hum_character.gd/.tscn`）。
+- 只新增 Y 键 death 武器帧映射与 R 恢复行为；H hit 继续跳过（显示当前方向 idle 帧）；
+  不扫描 Weapon 目录，只检查指定索引；不修改任何 Placement TXT / PNG。
+
+### 14.2 Death 映射表（31736–31799，用户提供候选）
+
+与所有动作相同的 8 索引槽位布局：每方向占一个 8 索引槽
+（N, NE, E, SE, S, SW, W, NW，起始偏移 +0/+8/+16/+24/+32/+40/+48/+56），前 4 帧有效。
+
+| 方向 | Death 索引（每方向 4 帧） |
+|------|--------------------------|
+| n    | 31736, 31737, 31738, 31739 |
+| ne   | 31744, 31745, 31746, 31747 |
+| e    | 31752, 31753, 31754, 31755 |
+| se   | 31760, 31761, 31762, 31763 |
+| s    | 31768, 31769, 31770, 31771 |
+| sw   | 31776, 31777, 31778, 31779 |
+| w    | 31784, 31785, 31786, 31787 |
+| nw   | 31792, 31793, 31794, 31795 |
+
+空槽（无 PNG，不属于动画，永不加载）：31740-31743、31748-31751、31756-31759、
+31764-31767、31772-31775、31780-31783、31788-31791、31796-31799。
+
+### 14.3 PNG/Placement 存在性检查（只检查指定 32 个索引，未扫描整个 Weapon 目录）
+
+- **32/32 PNG 全部存在**：`res://Weapon/%05d.png`
+- **32/32 Placement 全部存在且非零**：`res://Weapon/Placements/%05d.txt`
+
+| 方向 | 帧0 | 帧1 | 帧2 | 帧3 |
+|------|-----|-----|-----|-----|
+| n    | (10, -82)   | (-12, -52) | (-18, 26)  | (13, 44)   |
+| ne   | (49, -74)   | (-23, -62) | (-48, 20)  | (-52, 49)  |
+| e    | (36, -47)   | (-10, -83) | (-37, -13) | (-77, 10)  |
+| se   | (9, -22)    | (13, -91)  | (-28, -33) | (-45, -34) |
+| s    | (-13, -15)  | (12, -80)  | (-4, -36)  | (-18, -50) |
+| sw   | (-21, -34)  | (3, -60)   | (34, -37)  | (26, -29)  |
+| w    | (-46, -45)  | (4, -42)   | (64, -19)  | (65, -10)  |
+| nw   | (-34, -62)  | (12, -50)  | (31, 6)    | (71, 18)   |
+
+（死亡帧 Placement 数值跨度明显大于 idle/walk，符合倒地动作的位移预期。）
+
+### 14.4 实现（scripts/experiments/weapon_idle_test.gd）
+
+- 新增常量 `DEATH_FRAMES`（上表），加入 `_preload_weapon_data()` 预加载列表；
+  启动时一次性读取 32 个索引的 PNG 与同编号 Placement TXT，运行时零磁盘读取。
+- `_process()` match 新增 `"death"` 分支：身体播放 `death_<dir>` 时，武器按同序号同步——
+  身体帧 N → 武器帧 N（N = 0..3），与 idle/walk/run/攻击一致；不使用独立计时器、
+  不做任何 `base + local` 类计算。
+- **死亡动画结束后**：身体 death 为非循环，`animation_finished` 后停在最后一帧
+  （godot_frame=3）且 `dead=true`（hum_character.gd，未修改）。本脚本 `_process()`
+  继续读到 `death_<dir>` + frame 3 → 武器保持该方向第 4 帧：不恢复 Idle、不循环、不消失。
+- **R 键**：由稳定人物 `hum_character.gd recover()` 处理（本脚本未修改）——身体播放
+  `idle_<last_direction>`，godot_frame 回到 0 → 武器走既有 idle 分支，立即显示该方向
+  Idle 第 1 帧并重新应用该帧 Placement。
+- 缺图规则不变：当前帧 PNG 不存在 → `texture=null, visible=false`，不保留上一帧。
+- Placement/图层复用已验证机制，未改动：`WeaponAnchor.position = weapon_placement (+实验微调)`；
+  w/nw/sw 身体在前、其余方向武器在前（`_update_weapon_layer()` 不变）。
+
+### 14.5 HUD
+
+只新增一行（weapon_action == "death" 时显示），仅含三个字段：
+
+```
+weapon_action=death  weapon_absolute_index=<当前绝对索引>  holding_death_last_frame=true/false
+```
+
+- `holding_death_last_frame` = death 动作且身体位于最后一帧（第 4 帧）；
+  死亡动画播放到第 4 帧起为 true，R 恢复后消失。
+
+### 14.6 验证状态
+
+- Godot headless：`--check-only --script` 通过；测试场景加载运行无错误。
+- **待用户实机确认（按 Y，再按 R）：** 身体播放 death_<dir>，武器同步显示上表对应方向帧；
+  动画结束后武器保持第 4 帧不消失；按 R 后身体回 idle、武器立即回到该方向 Idle 第 1 帧。
+- 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U/I、Placement、前后图层规则、Hum 人物、PNG/TXT。

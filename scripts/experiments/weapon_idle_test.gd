@@ -7,7 +7,12 @@ extends Node2D
 # + AttackPower (candidate mapping 31528-31591, pending live verification).
 # + Cast (U key): body cast_<dir> -> CAST_FRAMES[dir] (31592-31653), candidate.
 # + Dig (I key): body dig_<dir> -> DIG_FRAMES[dir] (31656-31719, 2 frames/dir).
-# No hit/death weapon frames yet.
+# + Death (Y key): body death_<dir> -> DEATH_FRAMES[dir] (8-index slots from
+#   31736, first 4 frames valid per direction). After the non-looping body
+#   death animation ends, the weapon holds that direction's 4th frame: no idle
+#   fallback, no loop, no disappearance. R recovers the body to idle_<dir> and
+#   the weapon returns to that direction's idle frame 0 (existing idle path).
+# Hit (H) is still skipped (shows the current direction's idle frames).
 # The stable Hum character is NOT modified by this script; it is
 # instantiated and read via get_frame_info() only.
 #
@@ -174,6 +179,26 @@ const DIG_FRAMES := {
 	"nw": [31712, 31713],
 }
 
+# Death (31736-31799): same 8-index slot layout as all other actions; first 4
+# frames valid per direction, matching body death_<dir> (4 frames @ 6fps,
+# non-looping). Blank slots (31740-31743, 31748-31751, 31756-31759, 31764-31767,
+# 31772-31775, 31780-31783, 31788-31791, 31796-31799) are NOT part of the
+# animation and must never be loaded or displayed.
+# Body frame N -> weapon frame N (0..3). After the body death animation ends
+# the body stays on its last frame, so this same branch keeps the weapon on
+# the 4th death frame until R recovers to idle. Candidate mapping; pending
+# live verification (Y/R keys).
+const DEATH_FRAMES := {
+	"n": [31736, 31737, 31738, 31739],
+	"ne": [31744, 31745, 31746, 31747],
+	"e": [31752, 31753, 31754, 31755],
+	"se": [31760, 31761, 31762, 31763],
+	"s": [31768, 31769, 31770, 31771],
+	"sw": [31776, 31777, 31778, 31779],
+	"w": [31784, 31785, 31786, 31787],
+	"nw": [31792, 31793, 31794, 31795],
+}
+
 var weapon_enabled := true
 var idle_candidate_name := "A"
 var walk_candidate_name := "A"
@@ -198,6 +223,9 @@ var _hud_run_body_frame := -1
 var _hud_weapon_run_frame := -1
 var _last_diag_anim := ""
 var _last_diag_key := ""
+# True while the body is on its last (4th) death frame: during the final
+# frame of the non-looping death animation and after it ends (dead, holding).
+var _holding_death_last_frame := false
 
 var _png_exists: Dictionary = {}
 var _textures: Dictionary = {}
@@ -260,8 +288,11 @@ func _process(_delta: float) -> void:
 		"dig":
 			frames = DIG_FRAMES.get(dir, [])
 			weapon_action = "dig"
+		"death":
+			frames = DEATH_FRAMES.get(dir, [])
+			weapon_action = "death"
 		_:
-			# idle and all other actions (hit/death...):
+			# idle and all other actions (hit...):
 			# keep showing the current direction's idle weapon frames.
 			frames = _idle_candidate().get(dir, [])
 
@@ -269,6 +300,9 @@ func _process(_delta: float) -> void:
 	if not frames.is_empty():
 		# Same-index sync for all actions: body frame N -> weapon frame N.
 		frame_idx = body_frame % frames.size()
+	_holding_death_last_frame = \
+			weapon_action == "death" and not frames.is_empty() \
+			and body_frame >= frames.size() - 1
 	if action == "run":
 		_hud_run_body_frame = body_frame
 		_hud_weapon_run_frame = frame_idx if not frames.is_empty() else -1
@@ -373,7 +407,7 @@ func _walk_e_diagnostic(anim: String, body_frame: int, info: Dictionary) -> void
 func _preload_weapon_data() -> void:
 	# Only the indices listed above are checked/loaded. Blank slots inside
 	# 31400-31463 (e.g. 31406-31407) appear in no array and are never touched.
-	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES, DIG_FRAMES]:
+	for cand in [IDLE_CANDIDATE_A, IDLE_CANDIDATE_B, WALK_CANDIDATE_A, WALK_CANDIDATE_B, RUN_FRAMES, POSE_FRAMES, ATTACK_ONEHAND_FRAMES, ATTACK_TWOHAND_FRAMES, ATTACK_POWER_FRAMES, CAST_FRAMES, DIG_FRAMES, DEATH_FRAMES]:
 		for dir in cand:
 			for abs_idx in cand[dir]:
 				var idx := int(abs_idx)
@@ -420,6 +454,9 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 			dir, _body_sprite.z_index, _sprite.z_index,
 			"behind_body" if dir in ["w", "nw", "sw"] else "in_front_of_body"],
 	]
+	if weapon_action == "death":
+		lines.append("weapon_action=%s  weapon_absolute_index=%d  holding_death_last_frame=%s" % [
+			weapon_action, _current_abs_idx, str(_holding_death_last_frame)])
 	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power", "cast", "dig"]:
 		var png_path := ("res://Weapon/%05d.png" % _current_abs_idx) if _current_abs_idx >= 0 else ""
 		var diag_tag := "J-diag" if weapon_action == "attack_onehand" else (
