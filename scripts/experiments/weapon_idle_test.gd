@@ -6,7 +6,8 @@ extends Node2D
 # + AttackTwohand (candidate mapping, pending live verification).
 # + AttackPower (candidate mapping 31528-31591, pending live verification).
 # + Cast (U key): body cast_<dir> -> CAST_FRAMES[dir] (31592-31653), candidate.
-# + Dig (I key): body dig_<dir> -> DIG_FRAMES[dir] (31656-31719, 2 frames/dir).
+# + Dig (I key): body dig_<dir> -> DIG_FRAMES[dir] (user-confirmed consecutive
+#   pairs 31656-31671; NOT the 8-index slot layout of other actions).
 # + Death (Y key): body death_<dir> -> DEATH_FRAMES[dir] (8-index slots from
 #   31736, first 4 frames valid per direction). After the non-looping body
 #   death animation ends, the weapon holds that direction's 4th frame: no idle
@@ -162,22 +163,24 @@ const CAST_FRAMES := {
 	"nw": [31648, 31649, 31650, 31651, 31652, 31653],
 }
 
-# Dig (31656-31719): same 8-index slot layout as idle/walk/run/onehand/twohand/cast,
-# first 2 frames valid per direction; the last 6 slots of each direction are blank.
-# Blank slots (31658-31663, 31666-31671, 31674-31679, 31682-31687, 31690-31695,
-# 31698-31703, 31706-31711, 31714-31719) are NOT part of the animation and must
-# never be loaded or displayed.
+# Dig (31656-31671): USER-CONFIRMED mapping. NOT the 8-index slot layout used
+# by other actions - each direction occupies exactly 2 CONSECUTIVE indices in
+# fixed order N, NE, E, SE, S, SW, W, NW:
+#   dig_weapon_index = 31656 + direction_index * 2 + weapon_frame
+# (n=0, ne=1, e=2, se=3, s=4, sw=5, w=6, nw=7). Never use direction_index * 8.
 # Body dig_<dir> is 2 frames per direction (non-looping): body frame N -> weapon
-# frame N (0..1). Candidate mapping; pending live verification (I key).
+# frame N; if the body animation ever exposes more than 2 display frames, sync
+# uses body_frame % 2 (handled by the shared `body_frame % frames.size()`
+# logic in _process()).
 const DIG_FRAMES := {
 	"n": [31656, 31657],
-	"ne": [31664, 31665],
-	"e": [31672, 31673],
-	"se": [31680, 31681],
-	"s": [31688, 31689],
-	"sw": [31696, 31697],
-	"w": [31704, 31705],
-	"nw": [31712, 31713],
+	"ne": [31658, 31659],
+	"e": [31660, 31661],
+	"se": [31662, 31663],
+	"s": [31664, 31665],
+	"sw": [31666, 31667],
+	"w": [31668, 31669],
+	"nw": [31670, 31671],
 }
 
 # Death (31736-31799): same 8-index slot layout as all other actions; first 4
@@ -468,7 +471,7 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 		"weapon action=%s  weapon dir=%s  weapon frame=%d  weapon_abs_idx=%d" % [weapon_action, dir, frame_idx, _current_abs_idx],
 		"Run frames=31328-31389 (verified)  body_run_frame=%d  weapon_run_frame=%d" % [_hud_run_body_frame, _hud_weapon_run_frame],
 		"Pose=31392-31399 Onehand=31400-31461 (verified)  AttackTwohand valid slots in 31464-31525 (candidate)",
-		"AttackPower=31528-31591 (candidate, L key)  Dig=31656-31719 (I key, candidate)",
+		"AttackPower=31528-31591 (L key)  Dig=31656-31671 (I key, user-confirmed)",
 		"weapon png exists=%s" % (str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a"),
 		"Raw Weapon Placement = (%.1f, %.1f)" % [plc.x, plc.y],
 		"Test Adjustment      = (%.1f, %.1f)" % [weapon_test_adjustment.x, weapon_test_adjustment.y],
@@ -486,12 +489,16 @@ func _update_hud(anim: String, action: String, dir: String, body_frame: int, inf
 	if weapon_action == "death":
 		lines.append("weapon_action=%s  weapon_absolute_index=%d  holding_death_last_frame=%s" % [
 			weapon_action, _current_abs_idx, str(_holding_death_last_frame)])
-	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power", "cast", "dig"]:
+	if weapon_action == "dig":
+		lines.append("I-diag body_animation=%s body_direction=%s body_frame=%d weapon_action=dig weapon_direction=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_exists=%s weapon_placement=(%.1f, %.1f)" % [
+			anim, dir, body_frame, dir, frame_idx, _current_abs_idx,
+			str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",
+			plc.x, plc.y])
+	if weapon_action in ["attack_onehand", "attack_twohand", "attack_power", "cast"]:
 		var png_path := ("res://Weapon/%05d.png" % _current_abs_idx) if _current_abs_idx >= 0 else ""
 		var diag_tag := "J-diag" if weapon_action == "attack_onehand" else (
 			"K-diag" if weapon_action == "attack_twohand" else (
-				"L-diag" if weapon_action == "attack_power" else (
-					"I-diag" if weapon_action == "dig" else "U-diag")))
+				"L-diag" if weapon_action == "attack_power" else "U-diag"))
 		lines.append("%s body_animation=%s parsed_action=%s parsed_direction=%s body_frame=%d weapon_action=%s weapon_frame=%d weapon_absolute_index=%d weapon_png_path=%s weapon_png_exists=%s weapon_visible=%s weapon_layer_enabled=%s" % [
 			diag_tag, anim, action, dir, body_frame, weapon_action, frame_idx, _current_abs_idx,
 			png_path, str(_png_exists.get(_current_abs_idx, false)) if _current_abs_idx >= 0 else "n/a",

@@ -405,6 +405,10 @@ HUD 新增字段：current_direction、body_z_index、weapon_z_index、weapon_la
 
 ## 13. Dig 挖掘武器帧研究（I 键，2026-09-07）
 
+> **已作废**：本节 13.2 的候选表基于"8 索引槽位布局"假设，已被用户确认的
+> **连续 2 帧映射（31656–31671）**取代，见第 16 节。当前代码 `DIG_FRAMES` 以
+> 第 16.2 节为准；本节的空槽结论不成立（31658–31671 全部是有效挖地帧）。
+
 ### 13.1 范围
 
 - 只新增 I 键 dig 武器帧映射；不添加 hit/death 帧；不扫描 Weapon 目录；
@@ -538,7 +542,8 @@ weapon_action=death  weapon_absolute_index=<当前绝对索引>  holding_death_l
   Weapon Placement、w/nw/sw 前后遮挡规则、Hum 人物（`hum_character.gd/.tscn`）。
 - 用户确认 **31656–31671 是挖地帧**；本轮不修改 DIG_FRAMES。注意：旧 DIG_FRAMES 的
   e/se/s/sw/w/nw 条目（31672/31680/31688/31696/31704/31712 起）与本轮 Hit 候选区重叠，
-  属于未验证旧映射，留待后续单独复核挖地；本轮保持原样。
+  属于未验证旧映射，留待后续单独复核挖地；本轮保持原样。（已在第 16 节按用户确认
+  的连续 2 帧映射完成复核并替换 DIG_FRAMES。）
 - 只新增 H 键 hit 武器帧候选映射；不扫描 Weapon 目录，只检查指定 24 个索引；
   不修改任何 Placement TXT / PNG、Offset、图层规则。
 
@@ -604,3 +609,74 @@ H-diag body_animation=<anim> body_direction=<dir> body_frame=<n> weapon_action=h
 - **待用户实机确认（按 H）：** 身体播放 hit_<dir>，武器同步显示上表对应方向帧，
   HUD 显示 H-diag 行各字段。
 - 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U/I/Y/R、Placement、前后图层规则、Hum 人物、PNG/TXT。
+
+## 16. Dig 挖地映射修正（I 键，2026-09-08）
+
+### 16.1 范围与冻结声明
+
+- 已实机确认并冻结：Weapon Idle、Walk、Run、Pose、J/K/L/U、H 受击、Y 死亡、R 恢复、
+  Weapon Placement、w/nw/sw 前后遮挡规则、Hum 人物（`hum_character.gd/.tscn`）。
+- 本轮只修改 `DIG_FRAMES` 与 HUD I-diag 行；不扫描 Weapon 目录，只检查指定 16 个索引；
+  不修改任何 Placement TXT / PNG、Offset、图层规则。
+
+### 16.2 用户确认的挖地映射（31656–31671）
+
+**不是**其他动作使用的 8 索引槽位布局。每方向恰好占 **2 个连续索引**，
+按固定顺序 N, NE, E, SE, S, SW, W, NW 排列：
+
+```
+dig_weapon_index = 31656 + direction_index * 2 + weapon_frame
+（n=0, ne=1, e=2, se=3, s=4, sw=5, w=6, nw=7；weapon_frame = 0..1）
+```
+
+| 方向 | Weapon 绝对索引（帧0, 帧1） |
+|------|----------------------------|
+| n    | 31656, 31657               |
+| ne   | 31658, 31659               |
+| e    | 31660, 31661               |
+| se   | 31662, 31663               |
+| s    | 31664, 31665               |
+| sw   | 31666, 31667               |
+| w    | 31668, 31669               |
+| nw   | 31670, 31671               |
+
+注意：不得对挖地使用 `direction_index * 8`；第 13.2 节的旧候选表作废。
+
+### 16.3 PNG/Placement 存在性检查（只检查指定 16 个索引，未扫描整个 Weapon 目录）
+
+- **16/16 PNG 全部存在**：`res://Weapon/%05d.png`
+- **16/16 Placement 全部存在且非零**：`res://Weapon/Placements/%05d.txt`（当前磁盘值）
+
+| 方向 | 帧0 | 帧1 |
+|------|-----|-----|
+| n    | (34, -36)   | (22, -38)   |
+| ne   | (-20, 0)    | (-25, -5)   |
+| e    | (-1, -4)    | (-14, -6)   |
+| se   | (46, -13)   | (23, -12)   |
+| s    | (62, -41)   | (58, -23)   |
+| sw   | (27, -68)   | (45, -53)   |
+| w    | (-37, -72)  | (-9, -69)   |
+| nw   | (-41, -49)  | (-36, -61)  |
+
+### 16.4 实现（scripts/experiments/weapon_idle_test.gd）
+
+- `DIG_FRAMES` 替换为上表连续对映射；预加载列表不变（仍只检查这 16 个索引）。
+- `_process()` 的 `"dig"` 分支不变：身体播放 `dig_<dir>` 时，武器按同序号同步——
+  身体帧 N → 武器帧 N；共享逻辑 `body_frame % frames.size()` 在每方向 2 帧下即 `% 2`。
+- 缺图规则、Placement/锚点公式（`WeaponAnchor.position = weapon_placement (+实验微调)`）、
+  w/nw/sw 前后图层规则均未改动。
+
+### 16.5 HUD
+
+按 I（weapon_action == "dig"）时显示一行，仅含九个字段：
+
+```
+I-diag body_animation=<anim> body_direction=<dir> body_frame=<n> weapon_action=dig weapon_direction=<dir> weapon_frame=<n> weapon_absolute_index=<idx> weapon_png_exists=<bool> weapon_placement=(x, y)
+```
+
+### 16.6 验证状态
+
+- Godot headless：`--check-only --script` 通过；测试场景加载运行无错误。
+- **待用户实机确认（按 I）：** 身体播放 dig_<dir>，武器同步显示上表对应方向帧，
+  HUD 显示 I-diag 行各字段。
+- 未修改：Weapon Idle/Walk/Run/Pose/J/K/L/U/H/Y/R、Placement、前后图层规则、Hum 人物、PNG/TXT。
