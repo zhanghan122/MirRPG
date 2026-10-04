@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/experiments/monster_collision.gd" id="1_mc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_feet"]
+radius = 16.0
+
+[node name="MonsterCollision" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 5
+script = ExtResource("1_mc")
+
+[node name="FeetShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, 30)
+shape = SubResource("CircleShape2D_feet")
