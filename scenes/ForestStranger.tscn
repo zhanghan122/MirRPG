@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/forest_stranger.gd" id="1_monster"]
+
+[node name="ForestStranger" type="Node2D"]
+script = ExtResource("1_monster")
+
+[node name="SpriteAnchor" type="Node2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="SpriteAnchor"]
+centered = false
+
+[node name="DebugCanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="DebugLabel" type="Label" parent="DebugCanvasLayer"]
+visible = false
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 700.0
+offset_bottom = 160.0
+text = ""

@@ -10,6 +10,7 @@ config/features=PackedStringArray("4.7")
 [autoload]
 
 HumFrames="*res://scripts/hum_frames.gd"
+Mon1Frames="*res://scripts/mon1_frames.gd"
 
 [input]
 
