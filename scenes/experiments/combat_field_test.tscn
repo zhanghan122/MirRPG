@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/experiments/combat_field_test.gd" id="1_cft"]
+[ext_resource type="PackedScene" path="res://scenes/characters/presets/HumAppearance01.tscn" id="2_player"]
+
+[node name="CombatFieldTest" type="Node2D"]
+script = ExtResource("1_cft")
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+
+[node name="HudCanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HudLabel" type="Label" parent="HudCanvasLayer"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 480.0
+offset_bottom = 200.0
+text = ""
