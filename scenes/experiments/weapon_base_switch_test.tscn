@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/hum_character.tscn" id="1_char"]
+[ext_resource type="Script" path="res://scripts/experiments/weapon_base_switch_test.gd" id="2_script"]
+
+[node name="WeaponBaseSwitchTest" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="Player" parent="." instance=ExtResource("1_char")]
+position = Vector2(640, 360)
+
+[node name="WeaponAnchor" type="Node2D" parent="Player"]
+
+[node name="WeaponSprite" type="Sprite2D" parent="Player/WeaponAnchor"]
+centered = false
+
+[node name="HudCanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HudLabel" type="Label" parent="HudCanvasLayer"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 760.0
+offset_bottom = 320.0
+text = ""
