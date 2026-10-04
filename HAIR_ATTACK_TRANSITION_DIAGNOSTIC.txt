@@ -1,0 +1,1174 @@
+[t=   1ms physics=  0 process=  0] diag boot: sampling PROC(after _update_hair_weapon) vs DRAW(after AnimatedSprite2D advance)
+[t= 809ms physics= 12 process=  8] body.frame_changed -> 1 (anim=idle_s) during=BEFORE_FIELD_PROCESS
+[t= 911ms physics= 18 process= 23] setup: crit disabled, monsters cleared, dir=s body_base=0 hair_base=1200
+[t= 925ms physics= 19 process= 25] body.frame_changed -> 0 (anim=run_n) during=PHYSICS
+[t= 925ms physics= 19 process= 25] body.animation_changed -> run_n (frame=0) during=PHYSICS
+[t=1021ms physics= 24 process= 39] body.frame_changed -> 1 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1118ms physics= 30 process= 53] body.frame_changed -> 2 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1221ms physics= 36 process= 68] body.frame_changed -> 3 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1318ms physics= 42 process= 82] body.frame_changed -> 4 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1421ms physics= 49 process= 97] body.frame_changed -> 5 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1518ms physics= 54 process=111] body.frame_changed -> 0 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1615ms physics= 60 process=125] body.frame_changed -> 1 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1718ms physics= 66 process=140] body.frame_changed -> 2 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1815ms physics= 72 process=154] body.frame_changed -> 3 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1918ms physics= 79 process=169] body.frame_changed -> 4 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2015ms physics= 84 process=183] body.frame_changed -> 5 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2104ms physics= 90 process=196] steady: anim=run_n frame=5 dir=n locked=true
+[t=2104ms physics= 90 process=196] press LMB -> attack starts next physics frame
+[t=2111ms physics= 90 process=197] body.frame_changed -> 0 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2118ms physics= 91 process=198] body.animation_changed -> attack_onehand_n (frame=0) during=PHYSICS
+[t=2125ms physics= 91 process=199] TRANSITION at draw: body.animation=attack_onehand_n frame=0 abs=200 | hair_idx=1400 expected=1400 tex_ok=true delta=(12.0,-2.0)
+[t=2215ms physics= 96 process=212] body.frame_changed -> 1 (anim=attack_onehand_n) during=BEFORE_FIELD_PROCESS
+[t=2312ms physics=102 process=226] body.frame_changed -> 2 (anim=attack_onehand_n) during=BEFORE_FIELD_PROCESS
+=== HAIR ATTACK TRANSITION DIAGNOSTIC (read-only, no production code changed) ===
+scene=res://scenes/experiments/combat_field_test.tscn  attack=attack_onehand  crit=disabled
+PROC  = sampled in CombatFieldTest._process AFTER _update_hair_weapon()
+DRAW  = sampled in NOTIFICATION_INTERNAL_PROCESS after AnimatedSprite2D advanced (= state used for drawing)
+headless emits no RenderingServer.frame_pre_draw, internal-process sampler used instead
+
+--- EVENT TIMELINE (phase of every body frame/animation change) ---
+[t=   1ms physics=  0 process=  0] diag boot: sampling PROC(after _update_hair_weapon) vs DRAW(after AnimatedSprite2D advance)
+[t= 809ms physics= 12 process=  8] body.frame_changed -> 1 (anim=idle_s) during=BEFORE_FIELD_PROCESS
+[t= 911ms physics= 18 process= 23] setup: crit disabled, monsters cleared, dir=s body_base=0 hair_base=1200
+[t= 925ms physics= 19 process= 25] body.frame_changed -> 0 (anim=run_n) during=PHYSICS
+[t= 925ms physics= 19 process= 25] body.animation_changed -> run_n (frame=0) during=PHYSICS
+[t=1021ms physics= 24 process= 39] body.frame_changed -> 1 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1118ms physics= 30 process= 53] body.frame_changed -> 2 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1221ms physics= 36 process= 68] body.frame_changed -> 3 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1318ms physics= 42 process= 82] body.frame_changed -> 4 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1421ms physics= 49 process= 97] body.frame_changed -> 5 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1518ms physics= 54 process=111] body.frame_changed -> 0 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1615ms physics= 60 process=125] body.frame_changed -> 1 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1718ms physics= 66 process=140] body.frame_changed -> 2 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1815ms physics= 72 process=154] body.frame_changed -> 3 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=1918ms physics= 79 process=169] body.frame_changed -> 4 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2015ms physics= 84 process=183] body.frame_changed -> 5 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2104ms physics= 90 process=196] steady: anim=run_n frame=5 dir=n locked=true
+[t=2104ms physics= 90 process=196] press LMB -> attack starts next physics frame
+[t=2111ms physics= 90 process=197] body.frame_changed -> 0 (anim=run_n) during=BEFORE_FIELD_PROCESS
+[t=2118ms physics= 91 process=198] body.animation_changed -> attack_onehand_n (frame=0) during=PHYSICS
+[t=2125ms physics= 91 process=199] TRANSITION at draw: body.animation=attack_onehand_n frame=0 abs=200 | hair_idx=1400 expected=1400 tex_ok=true delta=(12.0,-2.0)
+[t=2215ms physics= 96 process=212] body.frame_changed -> 1 (anim=attack_onehand_n) during=BEFORE_FIELD_PROCESS
+[t=2312ms physics=102 process=226] body.frame_changed -> 2 (anim=attack_onehand_n) during=BEFORE_FIELD_PROCESS
+
+--- RENDER FRAME BLOCKS AROUND Run -> Attack ---
+[HAIR-TRANSITION] PRE  render=#180
+  [PROC] physics=#86 process=#187
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#86 process=#187
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#181
+  [PROC] physics=#86 process=#188
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#86 process=#188
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#182
+  [PROC] physics=#87 process=#189
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#87 process=#189
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#183
+  [PROC] physics=#87 process=#190
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#87 process=#190
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#184
+  [PROC] physics=#88 process=#191
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#88 process=#191
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#185
+  [PROC] physics=#88 process=#192
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#88 process=#192
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#186
+  [PROC] physics=#89 process=#193
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#89 process=#193
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#187
+  [PROC] physics=#89 process=#194
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#89 process=#194
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#188
+  [PROC] physics=#89 process=#195
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#89 process=#195
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#189
+  [PROC] physics=#90 process=#196
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#90 process=#196
+    body.animation=run_n body.frame=5 body.playing=true body.absolute_index=133
+    body.SpriteAnchor.position=(9.00, -50.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1333
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] PRE  render=#190
+  [PROC] physics=#90 process=#197
+    body.animation=run_n body.frame=0 body.playing=true body.absolute_index=128
+    body.SpriteAnchor.position=(9.00, -48.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1328
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -4.00) CONSISTENT=false
+  [DRAW] physics=#90 process=#197
+    body.animation=run_n body.frame=0 body.playing=true body.absolute_index=128
+    body.SpriteAnchor.position=(9.00, -48.00)
+    body.current_action=run body.last_direction=n action_locked=true
+    hair.absolute_index=1333  expected_from_body_frame=1328
+    hair.texture=res://Hair/01333.png
+    hair.placement=(18.00, -52.00) exists=true
+    hair.HairAnchor.position=(18.00, -52.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(9.00, -4.00) CONSISTENT=false
+[HAIR-TRANSITION] PRE  render=#191
+  [PROC] physics=#91 process=#198
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#91 process=#198
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#192
+  [PROC] physics=#91 process=#199
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#91 process=#199
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#193
+  [PROC] physics=#91 process=#200
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#91 process=#200
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#194
+  [PROC] physics=#92 process=#201
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#92 process=#201
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#195
+  [PROC] physics=#92 process=#202
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#92 process=#202
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#196
+  [PROC] physics=#93 process=#203
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#93 process=#203
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#197
+  [PROC] physics=#93 process=#204
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#93 process=#204
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#198
+  [PROC] physics=#94 process=#205
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#94 process=#205
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#199
+  [PROC] physics=#94 process=#206
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#94 process=#206
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#200
+  [PROC] physics=#94 process=#207
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#94 process=#207
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#201
+  [PROC] physics=#95 process=#208
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#95 process=#208
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#202
+  [PROC] physics=#95 process=#209
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#95 process=#209
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#203
+  [PROC] physics=#96 process=#210
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#96 process=#210
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#204
+  [PROC] physics=#96 process=#211
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+  [DRAW] physics=#96 process=#211
+    body.animation=attack_onehand_n body.frame=0 body.playing=true body.absolute_index=200
+    body.SpriteAnchor.position=(12.00, -40.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1400
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(12.00, -2.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#205
+  [PROC] physics=#96 process=#212
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1401
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, -6.00) CONSISTENT=false
+  [DRAW] physics=#96 process=#212
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1400  expected_from_body_frame=1401
+    hair.texture=res://Hair/01400.png
+    hair.placement=(24.00, -42.00) exists=true
+    hair.HairAnchor.position=(24.00, -42.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, -6.00) CONSISTENT=false
+[HAIR-TRANSITION] POST render=#206
+  [PROC] physics=#97 process=#213
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#97 process=#213
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#207
+  [PROC] physics=#97 process=#214
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#97 process=#214
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#208
+  [PROC] physics=#98 process=#215
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#98 process=#215
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#209
+  [PROC] physics=#98 process=#216
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#98 process=#216
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#210
+  [PROC] physics=#98 process=#217
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#98 process=#217
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#211
+  [PROC] physics=#99 process=#218
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#99 process=#218
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#212
+  [PROC] physics=#99 process=#219
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#99 process=#219
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#213
+  [PROC] physics=#100 process=#220
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#100 process=#220
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#214
+  [PROC] physics=#100 process=#221
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#100 process=#221
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#215
+  [PROC] physics=#101 process=#222
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#101 process=#222
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#216
+  [PROC] physics=#101 process=#223
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#101 process=#223
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#217
+  [PROC] physics=#101 process=#224
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#101 process=#224
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#218
+  [PROC] physics=#102 process=#225
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+  [DRAW] physics=#102 process=#225
+    body.animation=attack_onehand_n body.frame=1 body.playing=true body.absolute_index=201
+    body.SpriteAnchor.position=(10.00, -36.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1401
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(4.00, 8.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#219
+  [PROC] physics=#102 process=#226
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1402
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(5.00, 21.00) CONSISTENT=false
+  [DRAW] physics=#102 process=#226
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1401  expected_from_body_frame=1402
+    hair.texture=res://Hair/01401.png
+    hair.placement=(14.00, -28.00) exists=true
+    hair.HairAnchor.position=(14.00, -28.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:false placement==HairAnchor:true HairAnchor-bodyAnchor=(5.00, 21.00) CONSISTENT=false
+[HAIR-TRANSITION] POST render=#220
+  [PROC] physics=#103 process=#227
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#103 process=#227
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#221
+  [PROC] physics=#103 process=#228
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#103 process=#228
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#222
+  [PROC] physics=#103 process=#229
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#103 process=#229
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#223
+  [PROC] physics=#104 process=#230
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#104 process=#230
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#224
+  [PROC] physics=#104 process=#231
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#104 process=#231
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#225
+  [PROC] physics=#105 process=#232
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#105 process=#232
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#226
+  [PROC] physics=#105 process=#233
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#105 process=#233
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#227
+  [PROC] physics=#106 process=#234
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#106 process=#234
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#228
+  [PROC] physics=#106 process=#235
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#106 process=#235
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#229
+  [PROC] physics=#106 process=#236
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#106 process=#236
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#230
+  [PROC] physics=#107 process=#237
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#107 process=#237
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+[HAIR-TRANSITION] POST render=#231
+  [PROC] physics=#107 process=#238
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+  [DRAW] physics=#107 process=#238
+    body.animation=attack_onehand_n body.frame=2 body.playing=true body.absolute_index=202
+    body.SpriteAnchor.position=(9.00, -49.00)
+    body.current_action=attack_onehand body.last_direction=n action_locked=true
+    hair.absolute_index=1402  expected_from_body_frame=1402
+    hair.texture=res://Hair/01402.png
+    hair.placement=(23.00, -49.00) exists=true
+    hair.HairAnchor.position=(23.00, -49.00)
+    hair.HairSprite.position=(0.00, 0.00) hair.HairSprite.offset=(0.00, 0.00) visible=true
+    SYNC texture==body_frame:true placement==HairAnchor:true HairAnchor-bodyAnchor=(14.00, 0.00) CONSISTENT=true
+
+--- MISMATCH STATES (dedup: unique body/hair index pairs where hair != body frame at draw time) ---
+  body=idle_s frame=1 abs=33 bodyAnchor=(9.0,-47.0) || hair_idx=1232 hair_place=(19.0,-49.0) HairAnchor=(19.0,-49.0) hair_stale=1_body_frame(s) visible_drift=(10.0,-2.0)
+  body=run_n frame=1 abs=129 bodyAnchor=(9.0,-49.0) || hair_idx=1328 hair_place=(18.0,-50.0) HairAnchor=(18.0,-50.0) hair_stale=1_body_frame(s) visible_drift=(9.0,-1.0)
+  body=run_n frame=2 abs=130 bodyAnchor=(7.0,-50.0) || hair_idx=1329 hair_place=(18.0,-50.0) HairAnchor=(18.0,-50.0) hair_stale=1_body_frame(s) visible_drift=(11.0,0.0)
+  body=run_n frame=3 abs=131 bodyAnchor=(3.0,-48.0) || hair_idx=1330 hair_place=(19.0,-52.0) HairAnchor=(19.0,-52.0) hair_stale=1_body_frame(s) visible_drift=(16.0,-4.0)
+  body=run_n frame=4 abs=132 bodyAnchor=(5.0,-49.0) || hair_idx=1331 hair_place=(18.0,-50.0) HairAnchor=(18.0,-50.0) hair_stale=1_body_frame(s) visible_drift=(13.0,-1.0)
+  body=run_n frame=5 abs=133 bodyAnchor=(9.0,-50.0) || hair_idx=1332 hair_place=(18.0,-51.0) HairAnchor=(18.0,-51.0) hair_stale=1_body_frame(s) visible_drift=(9.0,-1.0)
+  body=run_n frame=0 abs=128 bodyAnchor=(9.0,-48.0) || hair_idx=1333 hair_place=(18.0,-52.0) HairAnchor=(18.0,-52.0) hair_stale=-5_body_frame(s) visible_drift=(9.0,-4.0)
+  body=attack_onehand_n frame=1 abs=201 bodyAnchor=(10.0,-36.0) || hair_idx=1400 hair_place=(24.0,-42.0) HairAnchor=(24.0,-42.0) hair_stale=1_body_frame(s) visible_drift=(14.0,-6.0)
+  body=attack_onehand_n frame=2 abs=202 bodyAnchor=(9.0,-49.0) || hair_idx=1401 hair_place=(14.0,-28.0) HairAnchor=(14.0,-28.0) hair_stale=1_body_frame(s) visible_drift=(5.0,21.0)
+
+--- BODY vs HAIR PLACEMENT AUDIT (direction=n) ---
+  [run_n] frames=6
+    f00 body_abs= 128 body_place=(9.0,-48.0) | hair_abs=1328 hair_place=(18.0,-50.0) exists=true
+    f01 body_abs= 129 body_place=(9.0,-49.0) | hair_abs=1329 hair_place=(18.0,-50.0) exists=true  step_from_prev=(0.0,0.0) len=0.0
+    f02 body_abs= 130 body_place=(7.0,-50.0) | hair_abs=1330 hair_place=(19.0,-52.0) exists=true  step_from_prev=(1.0,-2.0) len=2.2
+    f03 body_abs= 131 body_place=(3.0,-48.0) | hair_abs=1331 hair_place=(18.0,-50.0) exists=true  step_from_prev=(-1.0,2.0) len=2.2
+    f04 body_abs= 132 body_place=(5.0,-49.0) | hair_abs=1332 hair_place=(18.0,-51.0) exists=true  step_from_prev=(0.0,-1.0) len=1.0
+    f05 body_abs= 133 body_place=(9.0,-50.0) | hair_abs=1333 hair_place=(18.0,-52.0) exists=true  step_from_prev=(0.0,-1.0) len=1.0
+  [attack_onehand_n] frames=6
+    f00 body_abs= 200 body_place=(12.0,-40.0) | hair_abs=1400 hair_place=(24.0,-42.0) exists=true
+    f01 body_abs= 201 body_place=(10.0,-36.0) | hair_abs=1401 hair_place=(14.0,-28.0) exists=true  step_from_prev=(-10.0,14.0) len=17.2
+    f02 body_abs= 202 body_place=(9.0,-49.0) | hair_abs=1402 hair_place=(23.0,-49.0) exists=true  step_from_prev=(9.0,-21.0) len=22.8
+    f03 body_abs= 203 body_place=(-3.0,-63.0) | hair_abs=1403 hair_place=(24.0,-51.0) exists=true  step_from_prev=(1.0,-2.0) len=2.2
+    f04 body_abs= 204 body_place=(2.0,-49.0) | hair_abs=1404 hair_place=(23.0,-50.0) exists=true  step_from_prev=(-1.0,1.0) len=1.4
+    f05 body_abs= 205 body_place=(3.0,-49.0) | hair_abs=1405 hair_place=(25.0,-50.0) exists=true  step_from_prev=(2.0,0.0) len=2.0
