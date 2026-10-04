@@ -144,6 +144,61 @@ const _DIR_VECTORS := {
 }
 
 
+## PHASE 4g：攻击结束后一次性恢复移动动画（实机问题：右键+Shift 跑步中攻击后，
+## 人物继续位移但 Run 动画停在单帧、腿不再循环，像弓步滑行）。
+## 原因：hum 的 _on_animation_finished 会把 action_locked 置 false，而右键移动依赖
+## 「右键按下时设置的 action_locked=true」来压制 hum 自身 _physics_process 里
+## 「无输入即 current_action='idle' + _play('idle_<dir>')」的逻辑。攻击结束后锁被解除，
+## hum 每物理帧把动作顶回 idle，父节点的 run_<dir> 每帧被重启在 frame 0 → 单帧定格。
+## 修法（只在本文件、只在「攻击结束 → 恢复移动」这一个状态转换点调用一次）：
+## 按当前输入状态重新启动 run_<dir> / walk_<dir> / idle_<dir>（先 frame=0 再 play 强制重启），
+## 并恢复移动锁；不改 hum_character.gd、不改全局 _play()、不改帧数组/FPS/loop。
+var _resume_move_after_attack := false
+
+
+## PHASE 4g：攻击/硬直动画播放中（标记用于结束后的移动恢复）。
+func _mark_attack_anim_started() -> void:
+	_resume_move_after_attack = true
+
+
+## PHASE 4g：攻击结束 → 按「右键是否仍按住 / Shift 是否仍按住」一次性恢复移动动画。
+func _resume_move_animation() -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	var spr := _player.get_node_or_null("SpriteAnchor/AnimatedSprite2D") as AnimatedSprite2D
+	var dir_name := String(_player.last_direction)
+	var shift_held := Input.is_physical_key_pressed(KEY_SHIFT)
+	var alive := not is_dead() and not bool(_player.dead)
+	var resume := "idle"
+	var anim_name := "idle_" + dir_name
+	var force_restart := false
+	if alive:
+		# 右键仍按住：Shift 仍按住 → run_<dir>，否则 walk_<dir>；右键已松开 → idle_<dir>。
+		if right_mouse_held:
+			resume = "run" if shift_held else "walk"
+			anim_name = ("run_" if shift_held else "walk_") + dir_name
+		force_restart = true
+	else:
+		# 玩家已死：不打断也不重启 death 序列（death 播完停末帧，由 hum 自己锁定）。
+		resume = "death"
+		anim_name = "death_" + dir_name
+	# 恢复移动锁（与右键按下时一致）；死亡分支不动 hum 的 death 锁。
+	_player.action_locked = right_mouse_held and alive
+	if alive:
+		_player.current_action = resume
+	# 强制重启动画：先归零 frame 再 play()，确保真正开始循环
+	# （hum 的 _play() 在「同名且 is_playing」时会提前 return，无法用来强制重启）。
+	if force_restart and spr != null and spr.sprite_frames != null \
+			and spr.sprite_frames.has_animation(StringName(anim_name)):
+		spr.frame = 0
+		spr.play(StringName(anim_name))   # 切换/重启 → frame_changed → hum 自动应用 placement
+	var playing := spr != null and spr.is_playing()
+	var frame := int(spr.frame) if spr != null else -1
+	print("[P-ATK-END] right_held=%s shift=%s resume=%s animation=%s playing=%s frame=%d locked=%s" % [
+		str(right_mouse_held), str(shift_held), resume, anim_name, str(playing), frame,
+		str(_player.action_locked)])
+
+
 ## PHASE 4e：左键按住 = 连续攻击。触发条件：未死、未硬直、当前动作为 idle|walk|run
 ## （攻击/hit/death 动画进行中 → 等待其播完，hum 自动回 idle 后下一帧再触发）。
 func _try_player_attack() -> void:
@@ -154,6 +209,7 @@ func _try_player_attack() -> void:
 		return
 	var crit := randf() < attack_crit_chance
 	_resolve_player_attack(crit)
+	_mark_attack_anim_started()   # PHASE 4g：标记需要在动画结束后恢复移动动画
 	_player.play_directional_action("attack_power" if crit else "attack_onehand")
 
 
@@ -187,9 +243,15 @@ func _is_player_attacking() -> bool:
 
 
 ## PHASE 4c：hit 动画播完（animation_finished）→ 硬直结束；hum_character 同时自动回 idle。
+## PHASE 4g：攻击/硬直动画播完的那一个状态转换点 → 一次性恢复移动动画（run/walk/idle）。
+## 注意回调顺序：hum 自己的 _on_animation_finished 先连接先执行，故此处 current_action 已被
+## hum 改成 idle/death；「刚才是攻击」由 _resume_move_after_attack 标记判断，不依赖 current_action。
 func _on_player_anim_finished() -> void:
 	if is_stunned:
 		is_stunned = false
+	if _resume_move_after_attack:
+		_resume_move_after_attack = false
+		_resume_move_animation()   # 只在此转换点调用一次，不在每个物理帧重复重启
 
 # ===== PHASE 4d：玩家死亡（死亡动画 + 怪物停止攻击 + 屏幕缓慢褪为黑白）=====
 ## 屏幕灰度淡入/淡出时长（秒），「慢慢」→ 默认 3s。
