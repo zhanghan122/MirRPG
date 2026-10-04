@@ -38,3 +38,22 @@ _stable_snapshots/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Additional extracted game assets
+DnItems/
+HumEffect/
+Items/
+Mon1/
+Mon4/
+Mon5/
+Mon6/
+Mon12/
+Mon20/
+Objects/
+WeaponEndGame/
+magicre/
+monn/
+
+# Generated diagnostics
+forest_stranger_contact_sheet.png
+mon1_00280_00547_index_list.txt
