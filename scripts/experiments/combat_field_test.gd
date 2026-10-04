@@ -1,5 +1,22 @@
 extends Node2D
-## combat_field_test.gd — 战斗地图测试 PHASE 2（最小地图 + 按住右键移动 + Hair/Weapon 图层）。
+## combat_field_test.gd — 战斗地图测试 PHASE 3（在 PHASE 2 基础上增加血条与测试伤害）。
+##
+## PHASE 3 新增：
+## - HealthBar 组件（res://scenes/health_bar.tscn + res://scripts/health_bar.gd）：
+##   Node2D + Background/Foreground 两个 ColorRect，前景按 hp 百分比缩放、红→绿插值。
+##   不用 ProgressBar，避免主题样式干扰像素风。
+## - 头顶固定偏移（实测后常量，挂载时一次性设置，之后不逐帧移动）：
+##     MONSTER_BAR_Y = -70  （森林怪人各动作头顶范围 y≈-51..-63，留 7px 间隙）
+##   玩家无头顶血条：HP 数值保留（F8/F9/F10 测试键 + HUD 文本），稍后由操作界面 UI 表示。
+## - 属性接口（数值 + 血条显示；PHASE 4b 起怪物每次攻击周期对玩家结算一次伤害，仍无死亡行为）：
+##   take_damage(amount) / heal(amount) / reset_health() / is_dead()
+##     * 玩家侧定义在本脚本（hum_character.gd 不修改），含 defense（目前 0–1，护甲后期加入）；
+##     * 怪物侧定义在 monster_collision.gd，含 attack_min/attack_max（单次随机伤害）。
+##   伤害公式：最终 = max(1, randi_range(attack_min, attack_max) - 目标 defense)。
+## - 测试按键：F8 = 玩家受击 10   F9 = 全体怪物各受击 10   F10 = 全部回满血
+##   （原 F9 诊断打印移至 F12）。
+##
+## PHASE 2（最小地图 + 按住右键移动 + Hair/Weapon 图层）：
 ##
 ## - 地图：map_size 矩形，四周 border_width 褐色边界；有效区域由两者推导。
 ## - 玩家：现有 HumAppearance01 preset，通过其自身状态/播放路径驱动
@@ -44,7 +61,9 @@ extends Node2D
 ##   初始状态 idle、随机方向、无移动/攻击。F7 = 清除旧怪物并重新生成（仍遵守距离规则）。
 ## - 深度排序：玩家+怪物按世界 Y 统一排序；只修改怪物的 z_index，不触碰玩家内部图层
 ##   （weapon=0/2, body=1, hair=3）；地面固定 GROUND_Z 垫底。
-## - 本阶段无攻击判定、HP、AI（怪物只播放 idle）。
+## - PHASE 2 时无攻击判定/AI；PHASE 3 起有 HP/血条/测试伤害；
+##   PHASE 4 怪物追击玩家、到面前播放攻击动作（仍无命中判定/伤害，死亡行为亦为未来阶段）。
+##   上方侧（N/NE/NW）接近允许与玩家受控重叠、站到小腿/膝盖位置（monster_collision.gd 内实现）。
 
 const GRASS_COLOR := Color(0.29, 0.56, 0.24)
 const BORDER_COLOR := Color(0.43, 0.29, 0.16)
@@ -53,6 +72,12 @@ const MARKER_COLOR := Color(1.0, 0.85, 0.3, 0.9)
 # Hair/Weapon 组基址（appearance 0；索引规则见文件头注释）。
 const HAIR_BASE := 1200
 const WEAPON_BASE := 31200
+
+# ===== PHASE 3：怪物血条头顶固定偏移（实测值，挂载时一次性设置）=====
+# 玩家不再使用头顶血条（HP 稍后由操作界面 UI 表示），仅怪物保留头顶条。
+# 森林怪人 280-547 各动作帧实测：头顶范围 y≈-51(idle/walk)..-63(death 倒地)；
+# 条底边 -70 → 与最高点头留 7px 间隙。
+const MONSTER_BAR_Y := -70.0
 
 @export var map_size := Vector2(2560, 1440)
 @export var border_width := 64.0
@@ -65,6 +90,152 @@ const WEAPON_BASE := 31200
 @export var min_player_spawn_distance := 220.0
 @export var min_monster_spacing := 100.0
 @export var spawn_attempt_limit := 50
+
+# ===== PHASE 3/4b：玩家战斗属性（hum_character.gd 不修改，故定义在本测试脚本）=====
+@export var max_hp := 100.0
+var hp := 100.0
+@export var attack_damage := 25.0   # PHASE 4e：普通攻击单次伤害；暴击 = × attack_crit_multiplier
+## 玩家防御：目前 0–1（护甲后期加入）。怪物单次伤害 = max(1, 随机攻击力 - defense)。
+@export var defense := 0
+
+# ===== PHASE 4c：玩家受击硬直（stagger）=====
+## hum "hit" 动作 = 3 帧 @10fps = 0.3s；播放期间 hum_character 的 action_locked=true 自动封锁移动。
+const HIT_STUN_DURATION := 0.3
+## 硬直结束后再免疫约 1–2s（防连续硬直致死）；免疫期内伤害照常结算，只是不再触发新硬直。
+@export var stun_immunity_after := 1.5
+var is_stunned := false
+var _stun_immune_until := 0.0   # Time.get_ticks_msec()/1000.0 时间戳
+
+## 怪物「暴击」（roll 出 attack_max）时调用。返回是否接受本次硬直。
+func apply_stun() -> bool:
+	if is_dead() or is_stunned or _player == null:
+		return false
+	var now := Time.get_ticks_msec() / 1000.0
+	if now < _stun_immune_until:
+		return false   # 免疫窗口内：伤害照常，但不重复硬直
+	is_stunned = true
+	_player.play_directional_action("hit")
+	_stun_immune_until = now + HIT_STUN_DURATION + stun_immunity_after
+	print("[STUN] player staggered %.1fs, then %.1fs stun-immune" % [HIT_STUN_DURATION, stun_immunity_after])
+	return true
+
+
+# ===== PHASE 4e：玩家攻击（按住左键连续普通攻击；暴击用重击动画）=====
+## 普通攻击 = hum "attack_onehand"（6帧@10fps=0.6s，不循环）；暴击/重击 = "attack_power"（8帧@12fps≈0.67s）。
+## 两者播完 hum_character 自动回 idle；左键仍按住 → 下一物理帧再触发一次出手 → 按住即连续攻击。
+## 暴击率沿用怪物侧约定（怪物暴击=roll出最大值≈1/5）；重击伤害 = attack_damage × attack_crit_multiplier。
+## 命中判定：目标中心距 ≤ attack_range，且位于面向 ±45° 锥内（dot ≥ cos45°）。伤害在出手瞬间结算。
+@export var attack_crit_chance := 0.2
+@export var attack_crit_multiplier := 2.0
+@export var attack_range := 96.0
+const ATTACK_CONE_COS := 0.7071
+
+var left_mouse_held := false
+# HUD/测试诊断：累计出手次数、最近一次是否暴击与命中数。
+var player_attacks_done := 0
+var last_attack_crit := false
+var last_attack_hits := 0
+
+## 八方向单位向量（对角 = ±1/√2 ≈ ±0.7071068）。
+const _DIR_VECTORS := {
+	"n": Vector2(0, -1), "ne": Vector2(0.7071068, -0.7071068), "e": Vector2(1, 0),
+	"se": Vector2(0.7071068, 0.7071068), "s": Vector2(0, 1), "sw": Vector2(-0.7071068, 0.7071068),
+	"w": Vector2(-1, 0), "nw": Vector2(-0.7071068, -0.7071068),
+}
+
+
+## PHASE 4e：左键按住 = 连续攻击。触发条件：未死、未硬直、当前动作为 idle|walk|run
+## （攻击/hit/death 动画进行中 → 等待其播完，hum 自动回 idle 后下一帧再触发）。
+func _try_player_attack() -> void:
+	if not left_mouse_held or is_dead() or is_stunned or _player == null:
+		return
+	var action := String(_player.current_action)
+	if action != "idle" and action != "walk" and action != "run":
+		return
+	var crit := randf() < attack_crit_chance
+	_resolve_player_attack(crit)
+	_player.play_directional_action("attack_power" if crit else "attack_onehand")
+
+
+## PHASE 4e：一次出手的伤害结算 —— 面向 ±45° 锥内、≤ attack_range 的全部存活怪物。
+func _resolve_player_attack(crit: bool) -> void:
+	var dmg := attack_damage * (attack_crit_multiplier if crit else 1.0)
+	var facing: Vector2 = _DIR_VECTORS.get(String(_player.last_direction), Vector2(0, 1))
+	var hits := 0
+	for m in _monsters:
+		if not is_instance_valid(m):
+			continue
+		if "is_dead" in m and bool(m.is_dead()):
+			continue
+		var delta_vec: Vector2 = (m as Node2D).global_position - _player.global_position
+		var dist := delta_vec.length()
+		if dist < 0.001 or dist > attack_range:
+			continue
+		if delta_vec.normalized().dot(facing) < ATTACK_CONE_COS:
+			continue
+		m.take_damage(dmg)
+		hits += 1
+	player_attacks_done += 1
+	last_attack_crit = crit
+	last_attack_hits = hits
+	print("[P-ATK] %s dmg=%.0f -> %d monster(s)" % ["CRIT" if crit else "hit", dmg, hits])
+
+
+## PHASE 4e：玩家是否正在播放攻击动画（用于移动暂停与右键松开守卫）。
+func _is_player_attacking() -> bool:
+	return String(_player.current_action) in ["attack_onehand", "attack_power"]
+
+
+## PHASE 4c：hit 动画播完（animation_finished）→ 硬直结束；hum_character 同时自动回 idle。
+func _on_player_anim_finished() -> void:
+	if is_stunned:
+		is_stunned = false
+
+# ===== PHASE 4d：玩家死亡（死亡动画 + 怪物停止攻击 + 屏幕缓慢褪为黑白）=====
+## 屏幕灰度淡入/淡出时长（秒），「慢慢」→ 默认 3s。
+@export var death_fade_duration := 3.0
+## 灰色叠加层最大 alpha（压暗氛围）；真正的去饱和由 WorldEnvironment saturation 调整完成。
+const DEATH_OVERLAY_MAX_ALPHA := 0.4
+var _fade_value := 0.0        # 当前 fade 值 0..1
+var _fade_target := 0.0       # 目标值：1 = 死亡，0 = 存活
+var _death_env: Environment   # WorldEnvironment 的环境资源（saturation 1→0）
+var _overlay_rect: ColorRect  # 全屏灰色叠加层（alpha 0 → DEATH_OVERLAY_MAX_ALPHA）
+
+
+func take_damage(amount: float) -> void:
+	if is_dead():
+		return   # PHASE 4d：已死不再结算伤害（怪物侧也已停止攻击）
+	hp = maxf(hp - amount, 0.0)
+	if hp <= 0.0:
+		_on_player_died()
+
+
+## PHASE 4d：玩家死亡 —— hum 播放 death_<dir>（播完停在最后一帧、dead=true），
+## 怪物自行检查 is_dead() 停止追击/攻击，屏幕在 death_fade_duration 内褪为黑白。
+func _on_player_died() -> void:
+	print("[DEATH] player hp=0 — death anim, monsters stop, grayscale fade %.1fs" % death_fade_duration)
+	is_stunned = false   # 死亡优先于硬直状态
+	if _player != null and not bool(_player.dead):
+		_player.play_directional_action("death")
+	_fade_target = 1.0
+
+
+func heal(amount: float) -> void:
+	hp = minf(hp + amount, max_hp)
+
+
+func reset_health() -> void:
+	hp = max_hp
+	# PHASE 4d：若玩家处于死亡状态，回满血即复活（recover 回 idle、屏幕褪回彩色）。
+	if _player != null and bool(_player.dead):
+		_player.recover()
+		is_stunned = false
+		_stun_immune_until = 0.0
+		_fade_target = 0.0
+
+
+func is_dead() -> bool:
+	return hp <= 0.0
 
 # 地面固定层：必须低于所有角色（怪物在玩家后方时 z 可为负），保证草地始终垫底。
 const GROUND_Z := -10
@@ -91,6 +262,8 @@ var _hair_missing_warned := {}
 var _weapon_missing_warned := {}
 # 怪物实例列表（阶段二）。
 var _monsters: Array = []
+# PHASE 3：怪物血条（挂在各 MonsterCollision 下自动跟随，名 "HealthBar"）；玩家无头顶血条。
+const HEALTH_BAR_SCENE := preload("res://scenes/health_bar.tscn")
 
 
 func _ready() -> void:
@@ -113,28 +286,86 @@ func _ready() -> void:
 	#   Weapon后层(w/nw/sw)=0 < BodySprite=1 < Weapon前层(其他方向)=2 < HairSprite=3。
 	# Hair 必须始终高于身体；方向变化只切换 Weapon 的 z_index（见 _update_weapon_layer）。
 	$GroundLayer.z_index = GROUND_Z
-	var body_sprite := _player.get_node_or_null("SpriteAnchor/AnimatedSprite2D") as CanvasItem
+	var body_sprite := _player.get_node_or_null("SpriteAnchor/AnimatedSprite2D") as AnimatedSprite2D
 	if body_sprite != null:
 		body_sprite.z_index = 1
+		# PHASE 4c：监听动画结束 → hit 播完即解除硬直（不用固定 Timer，符合 HUM_FRAME_RULES）。
+		if not body_sprite.animation_finished.is_connected(_on_player_anim_finished):
+			body_sprite.animation_finished.connect(_on_player_anim_finished)
 
 	_player.global_position = map_size * 0.5
 	var cam := _player.get_node_or_null("Camera2D") as Camera2D
 	if cam != null:
 		# 抖动诊断第一轮：只关闭相机平滑，不修改其他设置（等待实机测试）。
 		cam.position_smoothing_enabled = false
+	_build_death_fade_overlay()
 	_spawn_monsters()
 	_update_depth_sort()
 	_print_sprite_diagnostics()
 
 
-func _process(_delta: float) -> void:
+## PHASE 4d：屏幕黑白淡入 = WorldEnvironment saturation 调整（真去饱和，作用于整个 viewport）
+## + 全屏灰色叠加层（压暗氛围）。两者都由 _fade_value(0..1) 驱动。
+func _build_death_fade_overlay() -> void:
+	var env := Environment.new()
+	env.adjustment_saturation = 1.0
+	var we := WorldEnvironment.new()
+	we.environment = env
+	add_child(we)
+	_death_env = env
+	var layer := CanvasLayer.new()
+	layer.layer = 20   # 高于 HUD，死亡时整个屏幕（含 HUD）一起褪为黑白
+	add_child(layer)
+	var rect := ColorRect.new()
+	rect.color = Color(0.5, 0.5, 0.5, 0.0)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(rect)
+	_overlay_rect = rect
+
+
+## PHASE 4d：每帧向 _fade_target 缓动 fade（死亡→1，复活→0），速度 = 1/death_fade_duration。
+func _update_death_fade(delta: float) -> void:
+	var step := delta / maxf(death_fade_duration, 0.1)
+	if _fade_value < _fade_target:
+		_fade_value = minf(_fade_value + step, _fade_target)
+	elif _fade_value > _fade_target:
+		_fade_value = maxf(_fade_value - step, _fade_target)
+	if _death_env != null and is_instance_valid(_death_env):
+		_death_env.adjustment_saturation = lerpf(1.0, 0.0, _fade_value)
+	if _overlay_rect != null and is_instance_valid(_overlay_rect):
+		_overlay_rect.color = Color(0.5, 0.5, 0.5, DEATH_OVERLAY_MAX_ALPHA * _fade_value)
+
+
+func _process(delta: float) -> void:
+	_update_death_fade(delta)
 	_update_hair_weapon()
 	_update_depth_sort()
+	_update_health_bars()
 	_update_hud()
 
 
+## PHASE 3：每帧把怪物当前 hp 同步到各自血条（条本身不移动，只改前景宽度与颜色）。
+func _update_health_bars() -> void:
+	for m in _monsters:
+		if not is_instance_valid(m):
+			continue
+		var bar := (m as Node).get_node_or_null("HealthBar")
+		if bar != null and "hp" in m:
+			bar.set_hp(m.hp, m.max_hp)
+
+
 func _physics_process(delta: float) -> void:
-	if not right_mouse_held or _player == null:
+	if _player == null:
+		return
+	# PHASE 4e：左键按住 = 连续攻击（独立于右键移动状态；挥击期间原地站定）。
+	_try_player_attack()
+	# PHASE 4c：硬直期间强制站定 —— 不移动、也不播放 walk/run（否则会打断 hit 动画）。
+	if not right_mouse_held or is_stunned:
+		return
+	# PHASE 4e：攻击动画进行中 → 本帧暂停移动，避免 walk/run 覆盖挥击动画
+	# （hum_character 的 action_locked 已把自身 velocity 清零，不会漂移）。
+	if _is_player_attacking():
 		return
 	var target := _clamp_to_valid(get_global_mouse_position())
 	target_pos = target
@@ -162,34 +393,78 @@ func _physics_process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var mi := event as InputEventMouseButton
-	if mi == null or mi.button_index != MOUSE_BUTTON_RIGHT:
+	if mi == null:
+		return
+	if mi.button_index == MOUSE_BUTTON_LEFT:
+		# PHASE 4e：左键按住 = 连续攻击（由 _physics_process 轮询触发；松开即停）。
+		left_mouse_held = mi.pressed
+		return
+	if mi.button_index != MOUSE_BUTTON_RIGHT:
+		return
+	right_mouse_held = mi.pressed
+	if is_stunned:
+		# PHASE 4c：硬直期间忽略右键状态切换 —— 不清 action_locked、不强制 idle，
+		# 避免打断 hit 动画；移动本身已被 _physics_process 的 is_stunned 守卫封锁。
 		return
 	if mi.pressed:
-		right_mouse_held = true
 		# 最小临时处理：按住期间冻结角色自身输入状态机，防止其覆盖动画。
 		_player.action_locked = true
 		_marker.show()
 	else:
-		right_mouse_held = false
 		# 松开 → 立即停止（清零速度）+ 最后方向 idle，然后恢复 action_locked。
 		_player.velocity = Vector2.ZERO
-		_set_action("idle")
-		_player.action_locked = false
+		# PHASE 4e：挥击进行中不强制 idle —— 让本次攻击播完，hum 结束后自动回 idle。
+		if not _is_player_attacking():
+			_set_action("idle")
+			_player.action_locked = false
 		_marker.hide()
+
+
+## PHASE 4c：硬直期间禁止的角色动作键（攻击/施法/挖掘等）——在此吞掉，hum_character 收不到。
+const _STUN_BLOCKED_KEYS := [KEY_J, KEY_K, KEY_L, KEY_U, KEY_I, KEY_H]
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
+	# PHASE 4c：硬直时不能攻击/触发任何角色动作（动画播完才能动）。
+	if is_stunned and key.keycode in _STUN_BLOCKED_KEYS:
+		get_viewport().set_input_as_handled()
+		return
 	if key.keycode == KEY_ESCAPE:
 		get_tree().quit()
+	elif key.keycode == KEY_F8:
+		# PHASE 3 测试：玩家受击 10（血条应缩短、颜色偏红）。
+		take_damage(10)
+		print("[F8] player hp = %.0f / %.0f" % [hp, max_hp])
 	elif key.keycode == KEY_F9:
+		# PHASE 3 测试：全体存活怪物各受击 10（各自血条应缩短）。
+		var hit := 0
+		for m in _monsters:
+			if is_instance_valid(m) and m.has_method("take_damage") and not m.is_dead():
+				m.take_damage(10)
+				hit += 1
+		print("[F9] %d monsters -10 hp each" % hit)
+	elif key.keycode == KEY_F10:
+		# PHASE 3 测试：玩家与全体怪物回满血。
+		reset_health()
+		for m in _monsters:
+			if is_instance_valid(m) and m.has_method("reset_health"):
+				m.reset_health()
+		print("[F10] all HP reset to full")
+	elif key.keycode == KEY_F11:
+		# PHASE 4c 测试：手动触发一次玩家硬直（验证 hit 动画 + 免疫窗口）。
+		var ok := apply_stun()
+		print("[F11] force stun -> %s" % ("accepted" if ok else "rejected (stunned/immune/dead)"))
+	elif key.keycode == KEY_F7:
+		# PHASE 4d：玩家已死则先复活（回满血 + recover + 屏幕褪回彩色），再重新生成怪物。
+		if is_dead():
+			reset_health()
+		_spawn_monsters()
+	elif key.keycode == KEY_F12:
 		# 诊断：随时重新打印 Sprite/位置/相机/Hair-Weapon 图层状态。
 		_print_sprite_diagnostics()
-	elif key.keycode == KEY_F7:
-		# 重新生成怪物（清除旧的，按距离规则重新放置）。
-		_spawn_monsters()
 
 
 ## 切换角色动画并同步 current_action（walk/run/idle），同一动画幂等。
@@ -248,7 +523,18 @@ func _instantiate_monster(pos: Vector2) -> Node2D:
 	var m := monster_scene.instantiate() as Node2D
 	m.initial_direction = Mon1Frames.DIRECTIONS.pick_random()
 	var body := body_scene.instantiate() as CharacterBody2D
-	body.add_child(m)  # 触发其 _ready → 播放该方向 idle（初始状态 idle，无移动/攻击）。
+	body.target = _player   # PHASE 4：追击目标=玩家；进入场景后 AI 立即接管移动/攻击。
+	# PHASE 4b：受击对象=本根节点（HP/defense 接口在此，$Player 上没有）。
+	body.damage_target = self
+	body.add_child(m)  # 触发其 _ready → 播放该方向 idle，随后由 MonsterCollision 的 PHASE 4 AI 驱动。
+	# PHASE 3：怪物血条挂在物理体（角色物理根节点）下，与动画场景同级；
+	# HealthBar.position = Vector2(+条宽*0.5, MONSTER_BAR_Y)，一次性设置；
+	# X 向右补偿条自身长度 50%（默认条宽 50px → +25px），使血条向身体视觉中心靠拢。
+	# z_index 由 _update_depth_sort() 每帧设为 动画层+1，保证随深度排序正确遮挡。
+	var bar := HEALTH_BAR_SCENE.instantiate() as Node2D
+	bar.name = "HealthBar"
+	bar.position = Vector2(25, MONSTER_BAR_Y)
+	body.add_child(bar)
 	body.position = pos
 	add_child(body)
 	return body
@@ -291,6 +577,10 @@ func _update_depth_sort() -> void:
 		var spr := (monster.get_node_or_null("SpriteAnchor/AnimatedSprite2D") as CanvasItem) if monster != null else null
 		if spr != null:
 			spr.z_index = z
+		# PHASE 3：怪物血条 z = 动画层+1（盖在怪物身上，且随整体深度正确遮挡玩家）。
+		var bar := (body.get_node_or_null("HealthBar") as CanvasItem) if body != null else null
+		if bar != null:
+			bar.z_index = z + 1
 
 
 ## 构建 Hair/Weapon 图层：挂在 Player 下自动跟随，与 SpriteAnchor 同级。
@@ -488,19 +778,34 @@ func _update_hud() -> void:
 		return
 	var target_text := "--" if not right_mouse_held else "(%.0f, %.0f)" % [target_pos.x, target_pos.y]
 	var dist_text := "--" if not right_mouse_held else "%.1f" % (target_pos - _player.global_position).length()
+	# PHASE 4c：硬直状态显示（STUNNED / 免疫剩余时间）。
+	var stun_text := ""
+	if is_stunned:
+		stun_text = "   STUNNED"
+	elif Time.get_ticks_msec() / 1000.0 < _stun_immune_until:
+		stun_text = "   stun-immune %.1fs" % (_stun_immune_until - Time.get_ticks_msec() / 1000.0)
 	var lines := [
-		"COMBAT FIELD TEST - PHASE 2",
+		"COMBAT FIELD TEST - PHASE 3",
 		"player pos : (%.0f, %.0f)" % [_player.global_position.x, _player.global_position.y],
 		"target     : " + target_text,
 		"direction  : " + String(_player.last_direction),
 		"action     : " + String(_player.current_action),
 		"dist       : " + dist_text,
 		"hair_abs   : %d    weapon_abs: %d" % [_diag_hair_abs, _diag_weapon_abs],
+		"player HP  : %.0f / %.0f   def=%d%s%s" % [hp, max_hp, defense, "   (DEAD)" if is_dead() else "", stun_text],
 	]
+	var atk_last := ""
+	if player_attacks_done > 0:
+		atk_last = "   last=%s -%.0f -> %d" % ["CRIT" if last_attack_crit else "hit",
+				attack_damage * (attack_crit_multiplier if last_attack_crit else 1.0), last_attack_hits]
+	lines.append("attack     : LMB hold | crit=%.0f%% x%.1f range=%.0f%s" % [
+			attack_crit_chance * 100.0, attack_crit_multiplier, attack_range, atk_last])
+	if _fade_value > 0.0 or _fade_target > 0.0:
+		lines.append("screen     : grayscale fade %.0f%%" % (_fade_value * 100.0))
 	lines.append_array(_monster_hud_lines())
 	lines.append("")
-	lines.append("hold right mouse = move   Shift+right mouse = run   release = stop")
-	lines.append("F7 = respawn monsters   F9 = 诊断打印   Esc = quit")
+	lines.append("hold left mouse = attack (crit -> heavy)   hold right mouse = move   Shift+RMB = run")
+	lines.append("F7=复活+重生怪 F8=player-10hp F9=monsters-10hp F10=reset HP(含复活) F11=硬直测试 F12=诊断 Esc=quit")
 	_hud.text = "\n".join(lines)
 
 
@@ -530,9 +835,11 @@ func _monster_hud_lines() -> Array:
 		var d: float = (m.global_position - _player.global_position).length()
 		var body := m as CharacterBody2D
 		var monster: Node = body.get_monster() if body != null and body.has_method("get_monster") else null
-		lines.append("  [%d] (%.0f, %.0f) dir=%-2s dist=%.0f%s" % [
+		var hp_text := "" if not ("hp" in m) else " hp=%.0f/%.0f%s" % [m.hp, m.max_hp, "(dead)" if m.is_dead() else ""]
+		var atk_text := "" if not ("attack_min" in m) else " atk=%d-%d" % [int(m.attack_min), int(m.attack_max)]
+		lines.append("  [%d] (%.0f, %.0f) dir=%-2s dist=%.0f%s%s%s" % [
 			i, m.global_position.x, m.global_position.y, str(monster.last_direction) if monster != null else "?", d,
-			"  <- nearest" if i == nearest_i else "",
+			hp_text, atk_text, "  <- nearest" if i == nearest_i else "",
 		])
 	return lines
 

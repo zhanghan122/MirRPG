@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="1_hb"]
+
+[node name="HealthBar" type="Node2D"]
+script = ExtResource("1_hb")
+
+[node name="Background" type="ColorRect" parent="."]
+mouse_filter = 2
+position = Vector2(-25, 0)
+size = Vector2(50, 6)
+color = Color(0.13, 0.13, 0.15, 1)
+
+[node name="Foreground" type="ColorRect" parent="."]
+mouse_filter = 2
+position = Vector2(-25, 0)
+size = Vector2(50, 6)
+color = Color(0.18, 0.85, 0.25, 1)
